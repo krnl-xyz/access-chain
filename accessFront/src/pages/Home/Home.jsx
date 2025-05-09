@@ -1,162 +1,508 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Box,
   Button,
   Container,
   Flex,
+  Grid,
+  GridItem,
   Heading,
-  Icon,
+  Image,
   Stack,
   Text,
+  VStack,
+  HStack,
   useColorModeValue,
-  createIcon,
+  Badge,
+  keyframes,
+  useDisclosure,
+  Icon,
+  chakra,
+  SlideFade,
+  Fade,
+  ScaleFade,
 } from '@chakra-ui/react';
 import { useAccount } from 'wagmi';
 import { Link as RouterLink } from 'react-router-dom';
-import { FaStar } from 'react-icons/fa';
+import { FaHandHoldingHeart, FaUniversalAccess, FaHandsHelping, FaRegLightbulb, FaChartLine, FaUsers } from 'react-icons/fa';
+
+// Animation keyframes
+const fadeIn = keyframes`
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+`;
+
+const float = keyframes`
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+`;
+
+const pulse = keyframes`
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+`;
+
+// Images of people with disabilities (using free stock photo URLs)
+const HERO_IMAGES = [
+  "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", // Person in wheelchair
+  "https://images.unsplash.com/photo-1593118247619-e2d6f056869e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", // Man with prosthetic leg
+  "https://images.unsplash.com/photo-1559029881-7cfd01ac1f18?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", // Blind person with cane
+  "https://images.unsplash.com/photo-1624557011647-45b8b0e37c67?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", // Person with hearing aid
+];
+
+// Success stories
+const SUCCESS_STORIES = [
+  {
+    title: "Mobility Devices for Rural Areas",
+    description: "Provided 50 customized wheelchairs to people with mobility impairments in underserved rural communities",
+    image: "https://images.unsplash.com/photo-1562788869-1e657ff4c102?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    impact: "50+ lives improved"
+  },
+  {
+    title: "Assistive Technology Lab",
+    description: "Established a technology center providing access to specialized software and hardware for visual and hearing impairments",
+    image: "https://images.unsplash.com/photo-1551650975-87deedd944c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    impact: "200+ beneficiaries"
+  },
+  {
+    title: "Inclusive Education Initiative",
+    description: "Trained educators on accessible teaching methods and provided learning materials for students with diverse needs",
+    image: "https://images.unsplash.com/photo-1560252829-804f1aedf1be?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    impact: "15 schools transformed"
+  }
+];
 
 export default function Home() {
   const { isConnected } = useAccount();
-
+  const { isOpen, onOpen } = useDisclosure({ defaultIsOpen: false });
+  
+  // Animation styles using Chakra's keyframes
+  const fadeInAnimation = `${fadeIn} 1s ease-out forwards`;
+  const floatAnimation = `${float} 3s ease-in-out infinite`;
+  const pulseAnimation = `${pulse} 3s ease-in-out infinite`;
+  
+  // Colors
+  const bgColor = useColorModeValue('blue.50', 'blue.900');
+  const cardBg = useColorModeValue('white', 'gray.800');
+  
+  // Open animation with delay for better page load
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onOpen();
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, [onOpen]);
+  
   return (
-    <>
-      <Container maxWidth={'8xl'} height={'100vh'} centerContent>
-        <Stack
-          as={Box}
-          textAlign={'center'}
-          spacing={{ base: 8, md: 14 }}
-          py={{ base: 20, md: 36 }}>
-          <Heading
-            fontWeight={600}
-            fontSize={{ base: '2xl', sm: '4xl', md: '6xl' }}
-            lineHeight={'110%'}>
-            Decentralized Grant Management <br />
-            <Text as={'span'} color={'blue.400'}>
-              for NGOs and Communities
-            </Text>
-          </Heading>
-          <Text color={'gray.500'}>
-            AccessChain is a decentralized platform that enables transparent and efficient
-            grant management for NGOs and communities. Submit grant requests, vote on
-            proposals, and track fund distribution all in one place.
-          </Text>
-          <Stack
-            direction={'column'}
-            spacing={3}
-            align={'center'}
-            alignSelf={'center'}
-            position={'relative'}>
-            <Button
-              as={RouterLink}
-              to="/grants/submit"
-              colorScheme={'blue'}
-              bg={'blue.400'}
-              rounded={'full'}
-              px={6}
-              _hover={{
-                bg: 'blue.500',
-              }}>
-              Submit Grant Request
-            </Button>
-            <Button
-              as={RouterLink}
-              to="/grants/requests"
-              variant={'link'}
-              colorScheme={'blue'}
-              size={'sm'}>
-              View Existing Grants
-            </Button>
-            <Box>
-              <Icon
-                as={Arrow}
-                color={useColorModeValue('gray.800', 'gray.300')}
-                w={71}
-                position={'absolute'}
-                right={-71}
-                top={'10px'}
-              />
-              <Text
-                fontSize={'lg'}
-                fontFamily={'Caveat'}
-                position={'absolute'}
-                right={'-125px'}
-                top={'-15px'}
-                transform={'rotate(10deg)'}>
-                Starting at $100
-              </Text>
-            </Box>
-          </Stack>
-        </Stack>
-      </Container>
+    <Box>
+      {/* Hero Section with Animation */}
+      <Box 
+        bg={bgColor} 
+        position="relative" 
+        overflow="hidden" 
+        py={{ base: 16, md: 20 }}
+      >
+        {/* Background Elements */}
+        <Box 
+          position="absolute" 
+          top="0" 
+          left="0" 
+          right="0" 
+          bottom="0" 
+          opacity="0.1" 
+          zIndex="0"
+        >
+          {[...Array(5)].map((_, i) => (
+            <Box
+              key={i}
+              position="absolute"
+              bg="blue.400"
+              width={{ base: "100px", md: "150px" }}
+              height={{ base: "100px", md: "150px" }}
+              borderRadius="full"
+              top={`${Math.random() * 100}%`}
+              left={`${Math.random() * 100}%`}
+              animation={floatAnimation}
+              style={{ 
+                animationDelay: `${i * 0.5}s`,
+                transform: `scale(${Math.random() * 0.5 + 0.5})`
+              }}
+            />
+          ))}
+        </Box>
 
-      <Box p={4}>
-        <Stack spacing={4} as={Container} maxW={'3xl'} textAlign={'center'}>
-          <Heading fontSize={'3xl'}>How It Works</Heading>
-          <Text color={'gray.600'} fontSize={'xl'}>
-            Our platform makes grant management simple and transparent
-          </Text>
-        </Stack>
-
-        <Container maxW={'6xl'} mt={10}>
-          <Stack
-            direction={{ base: 'column', md: 'row' }}
-            spacing={{ base: 10, md: 4, lg: 10 }}>
-            <Feature
-              icon={<Icon as={FaStar} w={10} h={10} />}
-              title={'Submit Grant Request'}
-              text={'Create and submit your grant request with detailed information about your project and funding needs.'}
-            />
-            <Feature
-              icon={<Icon as={FaStar} w={10} h={10} />}
-              title={'Community Voting'}
-              text={'The community reviews and votes on grant requests, ensuring transparency and fair distribution.'}
-            />
-            <Feature
-              icon={<Icon as={FaStar} w={10} h={10} />}
-              title={'Track Progress'}
-              text={'Monitor the progress of approved grants and ensure funds are used effectively.'}
-            />
-          </Stack>
+        <Container maxW="container.xl" position="relative" zIndex="1">
+          <Grid templateColumns={{ base: "1fr", lg: "1fr 1fr" }} gap={8} alignItems="center">
+            <GridItem>
+              <Fade in={true} transition={{ enter: { duration: 0.8 } }}>
+                <Heading
+                  as="h1"
+                  size="2xl"
+                  fontWeight="bold"
+                  lineHeight="shorter"
+                  mb={6}
+                >
+                  <chakra.span color="blue.500">AccessChain:</chakra.span> Empowering People with Disabilities through Blockchain
+                </Heading>
+                
+                <Text
+                  fontSize="xl"
+                  mb={8}
+                  color={useColorModeValue("gray.600", "gray.300")}
+                  css={{
+                    animation: fadeInAnimation,
+                    animationDelay: "0.3s",
+                    opacity: 0
+                  }}
+                >
+                  A decentralized platform connecting individuals with disabilities to funding and resources 
+                  while ensuring transparency and direct support without intermediaries.
+                </Text>
+                
+                <HStack spacing={4} mb={8}>
+                  <Box
+                    css={{
+                      animation: fadeInAnimation,
+                      animationDelay: "0.5s",
+                      opacity: 0
+                    }}
+                  >
+                    <Button
+                      as={RouterLink}
+                      to="/grants"
+                      size="lg"
+                      colorScheme="blue"
+                      fontWeight="bold"
+                      rounded="full"
+                      px={8}
+                      leftIcon={<FaHandHoldingHeart />}
+                    >
+                      Browse Grants
+                    </Button>
+                  </Box>
+                  
+                  <Box
+                    css={{
+                      animation: fadeInAnimation,
+                      animationDelay: "0.7s",
+                      opacity: 0
+                    }}
+                  >
+                    <Button
+                      as={RouterLink}
+                      to="/demo"
+                      size="lg"
+                      variant="outline"
+                      colorScheme="blue"
+                      fontWeight="bold"
+                      rounded="full"
+                      px={8}
+                    >
+                      Try Demo
+                    </Button>
+                  </Box>
+                </HStack>
+                
+                <HStack spacing={6} wrap="wrap">
+                  {["Transparent", "Inclusive", "Empowering", "Direct Support"].map((tag, index) => (
+                    <Box
+                      key={tag}
+                      css={{
+                        animation: fadeInAnimation,
+                        animationDelay: `${0.8 + index * 0.1}s`,
+                        opacity: 0
+                      }}
+                    >
+                      <Badge colorScheme="blue" fontSize="sm" px={3} py={1} borderRadius="full">
+                        {tag}
+                      </Badge>
+                    </Box>
+                  ))}
+                </HStack>
+              </Fade>
+            </GridItem>
+            
+            <GridItem display={{ base: "none", lg: "block" }}>
+              <Grid templateColumns="repeat(2, 1fr)" gap={4} position="relative">
+                {HERO_IMAGES.map((src, index) => (
+                  <SlideFade
+                    key={index}
+                    in={true}
+                    offsetY="30px"
+                    transition={{ enter: { delay: 0.2 * index, duration: 0.8 } }}
+                  >
+                    <Image
+                      src={src}
+                      alt={`Person with disability ${index + 1}`}
+                      borderRadius="xl"
+                      boxShadow="lg"
+                      objectFit="cover"
+                      height="200px"
+                      width="100%"
+                      transform={index % 2 === 0 ? "rotate(-5deg)" : "rotate(5deg)"}
+                      transition="transform 0.3s ease-in-out"
+                      _hover={{ 
+                        transform: index % 2 === 0 ? "rotate(-5deg) scale(1.05)" : "rotate(5deg) scale(1.05)",
+                        zIndex: 10
+                      }}
+                    />
+                  </SlideFade>
+                ))}
+                
+                <ScaleFade 
+                  initialScale={0.1} 
+                  in={true}
+                  transition={{ enter: { delay: 1, duration: 0.5 } }}
+                >
+                  <Box
+                    position="absolute"
+                    top="50%"
+                    left="50%"
+                    transform="translate(-50%, -50%)"
+                    bg="blue.500"
+                    color="white"
+                    borderRadius="full"
+                    p={4}
+                    zIndex={2}
+                    animation={pulseAnimation}
+                  >
+                    <Icon as={FaUniversalAccess} w={10} h={10} />
+                  </Box>
+                </ScaleFade>
+              </Grid>
+            </GridItem>
+          </Grid>
         </Container>
       </Box>
-    </>
-  );
-}
 
-const Feature = ({ title, text, icon }) => {
-  return (
-    <Stack
-      align={'center'}
-      textAlign={'center'}
-      maxW={'300px'}
-      mx={'auto'}
-      p={6}>
-      <Flex
-        w={16}
-        h={16}
-        align={'center'}
-        justify={'center'}
-        color={'white'}
-        rounded={'full'}
-        bg={useColorModeValue('gray.100', 'gray.700')}
-        mb={1}>
-        {icon}
-      </Flex>
-      <Text fontWeight={600}>{title}</Text>
-      <Text color={'gray.600'}>{text}</Text>
-    </Stack>
-  );
-};
+      {/* How It Works Section with Animation */}
+      <Box py={20}>
+        <Container maxW="container.xl">
+          <SlideFade in={true} offsetY="50px">
+            <Box textAlign="center" mb={16}>
+              <Heading as="h2" size="xl" mb={4}>
+                How AccessChain Works
+              </Heading>
+              <Text fontSize="lg" maxW="800px" mx="auto" color={useColorModeValue("gray.600", "gray.300")}>
+                Our blockchain-based platform creates a transparent ecosystem connecting people with disabilities, 
+                NGOs, donors, and service providers.
+              </Text>
+            </Box>
+          </SlideFade>
 
-const Arrow = createIcon({
-  displayName: 'Arrow',
-  viewBox: '0 0 72 24',
-  path: (
-    <path
-      fillRule="evenodd"
-      clipRule="evenodd"
-      d="M0.600904 7.08166C0.764293 6.8879 1.01492 6.79004 1.26654 6.82177C2.83216 7.01918 5.20326 7.24581 7.54543 7.23964C9.92491 7.23338 12.1351 6.98464 13.4704 6.32142C13.84 6.13785 14.2885 6.28805 14.4722 6.65692C14.6559 7.02578 14.5052 7.47362 14.1356 7.6572C12.4625 8.48822 9.94063 8.72541 7.54852 8.7317C5.67514 8.73663 3.79547 8.5985 2.29921 8.44247C2.80955 9.59638 3.50943 10.6396 4.24665 11.7384C4.39435 11.9585 4.54354 12.1809 4.69301 12.4068C5.79543 14.0733 6.88128 15.8995 7.1179 18.2636C7.15893 18.6735 6.85928 19.0393 6.4486 19.0805C6.03792 19.1217 5.67174 18.8227 5.6307 18.4128C5.43271 16.4346 4.52957 14.868 3.4457 13.2296C3.3058 13.0181 3.16221 12.8046 3.01684 12.5885C2.05899 11.1646 1.02372 9.62564 0.457909 7.78069C0.383671 7.53862 0.437515 7.27541 0.600904 7.08166ZM5.52039 10.2248C5.77662 9.90161 6.24663 9.84687 6.57018 10.1025C16.4834 17.9344 29.9158 22.4064 42.0781 21.4773C54.1988 20.5514 65.0339 14.2748 69.9746 0.584299C70.1145 0.196597 70.5427 -0.0046455 70.931 0.134813C71.3193 0.274276 71.5206 0.70162 71.3807 1.08932C66.2105 15.4159 54.8056 22.0014 42.1913 22.965C29.6185 23.9254 15.8207 19.3142 5.64226 11.2727C5.31871 11.0171 5.26415 10.5479 5.52039 10.2248Z"
-      fill="currentColor"
-    />
-  ),
-}); 
+          <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={8}>
+            {[
+              {
+                icon: FaUniversalAccess,
+                title: "Disability Registration",
+                description: "Verifiable on-chain registration of people with disabilities and their specific needs"
+              },
+              {
+                icon: FaHandsHelping,
+                title: "NGO Grant Creation",
+                description: "Authorized NGOs create targeted grants to address specific disability support needs"
+              },
+              {
+                icon: FaUsers,
+                title: "Community Voting",
+                description: "Token holders vote on grant proposals ensuring resources go to the most impactful projects"
+              }
+            ].map((feature, index) => (
+              <SlideFade
+                key={index}
+                in={true}
+                offsetY="20px"
+                transition={{ enter: { delay: 0.2 * index, duration: 0.5 } }}
+              >
+                <VStack
+                  bg={cardBg}
+                  p={8}
+                  borderRadius="xl"
+                  boxShadow="md"
+                  spacing={4}
+                  align="flex-start"
+                  height="100%"
+                  borderTop="4px solid"
+                  borderColor="blue.500"
+                  transition="transform 0.3s ease, box-shadow 0.3s ease"
+                  _hover={{
+                    transform: "translateY(-8px)",
+                    boxShadow: "xl"
+                  }}
+                >
+                  <Flex
+                    bg="blue.500"
+                    color="white"
+                    p={3}
+                    borderRadius="full"
+                    justify="center"
+                    align="center"
+                  >
+                    <Icon as={feature.icon} w={6} h={6} />
+                  </Flex>
+                  <Heading as="h3" size="md">
+                    {feature.title}
+                  </Heading>
+                  <Text color={useColorModeValue("gray.600", "gray.300")}>
+                    {feature.description}
+                  </Text>
+                </VStack>
+              </SlideFade>
+            ))}
+          </Grid>
+        </Container>
+      </Box>
+      
+      {/* Success Stories Section */}
+      <Box bg={useColorModeValue("gray.50", "gray.900")} py={20}>
+        <Container maxW="container.xl">
+          <Fade in={true} transition={{ enter: { duration: 0.8 } }}>
+            <Box mb={12} textAlign="center">
+              <Heading as="h2" size="xl" mb={4}>
+                Impact Stories
+              </Heading>
+              <Text fontSize="lg" maxW="800px" mx="auto" color={useColorModeValue("gray.600", "gray.300")}>
+                See how AccessChain is transforming lives through blockchain-powered funding and resource allocation.
+              </Text>
+            </Box>
+          </Fade>
+
+          <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={8}>
+            {SUCCESS_STORIES.map((story, index) => (
+              <ScaleFade
+                key={index}
+                initialScale={0.9}
+                in={true}
+                transition={{ enter: { delay: 0.2 * index, duration: 0.6 } }}
+              >
+                <Flex
+                  direction="column"
+                  bg={cardBg}
+                  borderRadius="xl"
+                  overflow="hidden"
+                  boxShadow="md"
+                  height="100%"
+                  transition="transform 0.3s ease"
+                  _hover={{
+                    transform: "translateY(-8px)",
+                    boxShadow: "xl"
+                  }}
+                >
+                  <Image
+                    src={story.image}
+                    alt={story.title}
+                    height="200px"
+                    objectFit="cover"
+                  />
+                  <Box p={6}>
+                    <Badge colorScheme="green" mb={2}>{story.impact}</Badge>
+                    <Heading as="h3" size="md" mb={3}>
+                      {story.title}
+                    </Heading>
+                    <Text color={useColorModeValue("gray.600", "gray.300")}>
+                      {story.description}
+                    </Text>
+                  </Box>
+                </Flex>
+              </ScaleFade>
+            ))}
+          </Grid>
+        </Container>
+      </Box>
+      
+      {/* Call to Action Section */}
+      <Box py={20}>
+        <Container maxW="container.lg" textAlign="center">
+          <Fade in={true} transition={{ enter: { duration: 0.8 } }}>
+            <Heading as="h2" size="xl" mb={6}>
+              Join the AccessChain Movement
+            </Heading>
+            <Text fontSize="lg" maxW="800px" mx="auto" mb={10} color={useColorModeValue("gray.600", "gray.300")}>
+              Whether you're a person with disabilities, an NGO, or a donor, you can be part of creating 
+              a more accessible and inclusive world through blockchain technology.
+            </Text>
+            
+            <Grid
+              templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }}
+              gap={6}
+              maxW="900px"
+              mx="auto"
+              mb={12}
+            >
+              {[
+                {
+                  title: "For People with Disabilities",
+                  description: "Register your needs and access funding and resources directly",
+                  button: "Register Now",
+                  link: "/accessibility/onboarding"
+                },
+                {
+                  title: "For NGOs",
+                  description: "Create grants and manage projects with full transparency",
+                  button: "Create Grants",
+                  link: "/ngo/create-grant"
+                },
+                {
+                  title: "For Donors",
+                  description: "Contribute to verified projects and track your impact",
+                  button: "Browse Projects",
+                  link: "/grants"
+                }
+              ].map((item, index) => (
+                <SlideFade
+                  key={index}
+                  in={true}
+                  offsetY="20px"
+                  transition={{ enter: { delay: 0.2 * index, duration: 0.6 } }}
+                >
+                  <Box
+                    p={6}
+                    borderRadius="lg"
+                    bg={cardBg}
+                    boxShadow="md"
+                  >
+                    <Heading as="h3" size="md" mb={3}>
+                      {item.title}
+                    </Heading>
+                    <Text mb={6} color={useColorModeValue("gray.600", "gray.300")}>
+                      {item.description}
+                    </Text>
+                    <Button
+                      as={RouterLink}
+                      to={item.link}
+                      colorScheme="blue"
+                      variant="outline"
+                      size="md"
+                    >
+                      {item.button}
+                    </Button>
+                  </Box>
+                </SlideFade>
+              ))}
+            </Grid>
+            
+            <Button
+              as={RouterLink}
+              to="/demo"
+              size="lg"
+              colorScheme="blue"
+              fontWeight="bold"
+              rounded="full"
+              px={8}
+              leftIcon={<FaRegLightbulb />}
+              css={{
+                animation: pulseAnimation,
+                animationDelay: "1s"
+              }}
+            >
+              Explore Demo Dashboard
+            </Button>
+          </Fade>
+        </Container>
+      </Box>
+    </Box>
+  );
+} 
