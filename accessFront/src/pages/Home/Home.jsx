@@ -38,19 +38,19 @@ const SUCCESS_STORIES = [
   {
     title: "Mobility Devices for Rural Areas",
     description: "Provided 50 customized wheelchairs to people with mobility impairments in underserved rural communities",
-    image: "https://www.enabletravel.com/sites/default/files/2022-10/enable-travel-wheelchair.jpg",
+    image: "https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
     impact: "50+ lives improved"
   },
   {
     title: "Assistive Technology Lab",
     description: "Established a technology center providing access to specialized software and hardware for visual and hearing impairments",
-    image: "https://www.who.int/images/default-source/imported/assistive-technology-new.jpg",
+    image: "https://images.unsplash.com/photo-1587614382346-4ec70e388b28?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
     impact: "200+ beneficiaries"
   },
   {
     title: "Inclusive Education Initiative",
     description: "Trained educators on accessible teaching methods and provided learning materials for students with diverse needs",
-    image: "https://www.worldbank.org/content/dam/photos/780x439/2017/jun-2/disability-inclusive-education-ghana.jpg",
+    image: "https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
     impact: "15 schools transformed"
   }
 ];
