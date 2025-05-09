@@ -14,7 +14,6 @@ import {
   HStack,
   useColorModeValue,
   Badge,
-  keyframes,
   useDisclosure,
   Icon,
   chakra,
@@ -26,30 +25,12 @@ import { useAccount } from 'wagmi';
 import { Link as RouterLink } from 'react-router-dom';
 import { FaHandHoldingHeart, FaUniversalAccess, FaHandsHelping, FaRegLightbulb, FaChartLine, FaUsers } from 'react-icons/fa';
 
-// Animation keyframes
-const fadeIn = keyframes`
-  0% { opacity: 0; transform: translateY(10px); }
-  100% { opacity: 1; transform: translateY(0); }
-`;
-
-const float = keyframes`
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
-`;
-
-const pulse = keyframes`
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
-`;
-
-// Images of people with disabilities (using free stock photo URLs)
+// Images of people with disabilities (using provided URLs)
 const HERO_IMAGES = [
-  "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", // Person in wheelchair
-  "https://images.unsplash.com/photo-1593118247619-e2d6f056869e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", // Man with prosthetic leg
-  "https://images.unsplash.com/photo-1559029881-7cfd01ac1f18?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", // Blind person with cane
-  "https://images.unsplash.com/photo-1624557011647-45b8b0e37c67?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", // Person with hearing aid
+  "https://dmu.go.ug/sites/default/files/2023-08/beatrice-aleema-blog.jpg", // Woman with disability
+  "https://socialprotection-humanrights.org/wp-content/uploads/2015/05/soccer-disabled.jpg", // Soccer players with disabilities
+  "https://www.samrc.ac.za/sites/default/files/inline-images/wheelchair_0.jpg", // Person in wheelchair
+  "https://assets.td.org/m/12116f793f2bdd65/webimage-Why-AI-Generated-Art-Is-Missing-the-Mark-for-People-With-Disabilities.png" // Disability representation
 ];
 
 // Success stories
@@ -77,11 +58,6 @@ const SUCCESS_STORIES = [
 export default function Home() {
   const { isConnected } = useAccount();
   const { isOpen, onOpen } = useDisclosure({ defaultIsOpen: false });
-  
-  // Animation styles using Chakra's keyframes
-  const fadeInAnimation = `${fadeIn} 1s ease-out forwards`;
-  const floatAnimation = `${float} 3s ease-in-out infinite`;
-  const pulseAnimation = `${pulse} 3s ease-in-out infinite`;
   
   // Colors
   const bgColor = useColorModeValue('blue.50', 'blue.900');
@@ -125,7 +101,8 @@ export default function Home() {
               borderRadius="full"
               top={`${Math.random() * 100}%`}
               left={`${Math.random() * 100}%`}
-              animation={floatAnimation}
+              transition="transform 3s ease-in-out"
+              _hover={{ transform: "translateY(-10px)" }}
               style={{ 
                 animationDelay: `${i * 0.5}s`,
                 transform: `scale(${Math.random() * 0.5 + 0.5})`
@@ -152,74 +129,51 @@ export default function Home() {
                   fontSize="xl"
                   mb={8}
                   color={useColorModeValue("gray.600", "gray.300")}
-                  css={{
-                    animation: fadeInAnimation,
-                    animationDelay: "0.3s",
-                    opacity: 0
-                  }}
                 >
                   A decentralized platform connecting individuals with disabilities to funding and resources 
                   while ensuring transparency and direct support without intermediaries.
                 </Text>
                 
                 <HStack spacing={4} mb={8}>
-                  <Box
-                    css={{
-                      animation: fadeInAnimation,
-                      animationDelay: "0.5s",
-                      opacity: 0
-                    }}
+                  <Button
+                    as={RouterLink}
+                    to="/grants"
+                    size="lg"
+                    colorScheme="blue"
+                    fontWeight="bold"
+                    rounded="full"
+                    px={8}
+                    leftIcon={<FaHandHoldingHeart />}
                   >
-                    <Button
-                      as={RouterLink}
-                      to="/grants"
-                      size="lg"
-                      colorScheme="blue"
-                      fontWeight="bold"
-                      rounded="full"
-                      px={8}
-                      leftIcon={<FaHandHoldingHeart />}
-                    >
-                      Browse Grants
-                    </Button>
-                  </Box>
+                    Browse Grants
+                  </Button>
                   
-                  <Box
-                    css={{
-                      animation: fadeInAnimation,
-                      animationDelay: "0.7s",
-                      opacity: 0
-                    }}
+                  <Button
+                    as={RouterLink}
+                    to="/demo"
+                    size="lg"
+                    variant="outline"
+                    colorScheme="blue"
+                    fontWeight="bold"
+                    rounded="full"
+                    px={8}
                   >
-                    <Button
-                      as={RouterLink}
-                      to="/demo"
-                      size="lg"
-                      variant="outline"
-                      colorScheme="blue"
-                      fontWeight="bold"
-                      rounded="full"
-                      px={8}
-                    >
-                      Try Demo
-                    </Button>
-                  </Box>
+                    Try Demo
+                  </Button>
                 </HStack>
                 
                 <HStack spacing={6} wrap="wrap">
                   {["Transparent", "Inclusive", "Empowering", "Direct Support"].map((tag, index) => (
-                    <Box
-                      key={tag}
-                      css={{
-                        animation: fadeInAnimation,
-                        animationDelay: `${0.8 + index * 0.1}s`,
-                        opacity: 0
-                      }}
+                    <Badge 
+                      key={tag} 
+                      colorScheme="blue" 
+                      fontSize="sm" 
+                      px={3} 
+                      py={1} 
+                      borderRadius="full"
                     >
-                      <Badge colorScheme="blue" fontSize="sm" px={3} py={1} borderRadius="full">
-                        {tag}
-                      </Badge>
-                    </Box>
+                      {tag}
+                    </Badge>
                   ))}
                 </HStack>
               </Fade>
@@ -267,7 +221,8 @@ export default function Home() {
                     borderRadius="full"
                     p={4}
                     zIndex={2}
-                    animation={pulseAnimation}
+                    transition="transform 2s ease-in-out"
+                    _hover={{ transform: "translate(-50%, -50%) scale(1.1)" }}
                   >
                     <Icon as={FaUniversalAccess} w={10} h={10} />
                   </Box>
@@ -493,10 +448,8 @@ export default function Home() {
               rounded="full"
               px={8}
               leftIcon={<FaRegLightbulb />}
-              css={{
-                animation: pulseAnimation,
-                animationDelay: "1s"
-              }}
+              transition="transform 0.3s ease"
+              _hover={{ transform: "scale(1.05)" }}
             >
               Explore Demo Dashboard
             </Button>
