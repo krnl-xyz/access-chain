@@ -1,35 +1,16 @@
 import { configureChains, createConfig } from 'wagmi';
 import { InjectedConnector } from 'wagmi/connectors/injected';
 import { publicProvider } from 'wagmi/providers/public';
-import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import { sonicBlaze } from './chains';
-// Comment out Web3Modal import if not using it
-// import { createWeb3Modal } from '@web3modal/wagmi/react';
+import { createWeb3Modal } from '@web3modal/wagmi/react';
 
-// Configure chains with multiple RPC providers for better reliability
+// Configure chains
+// const projectId = process.env.VITE_WALLET_CONNECT_PROJECT_ID; // Get this from https://cloud.walletconnect.com
+const projectId = 'c4f79cc821944f183565b21f455a8c5a'; // Hardcoded for testing - replace with your own in production
+
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [sonicBlaze],
-  [
-    jsonRpcProvider({
-      rpc: (chain) => {
-        if (chain.id !== sonicBlaze.id) return null;
-        return {
-          http: 'https://rpc.blaze.soniclabs.com',
-          webSocket: 'wss://rpc.blaze.soniclabs.com',
-        };
-      },
-      stallTimeout: 3000,
-      priority: 0
-    }),
-    jsonRpcProvider({
-      rpc: (chain) => ({
-        http: chain.rpcUrls.default.http[0],
-      }),
-      stallTimeout: 5000,
-      priority: 1
-    }),
-    publicProvider(),
-  ]
+  [publicProvider()]
 );
 
 // Create wagmi config
@@ -42,12 +23,10 @@ export const config = createConfig({
   webSocketPublicClient,
 });
 
-// Comment out Web3Modal configuration if not using it
-// If you want to use Web3Modal, uncomment this and add your projectId
-/*
+// Create web3modal
 createWeb3Modal({
   wagmiConfig: config,
-  projectId: process.env.VITE_WALLET_CONNECT_PROJECT_ID,
+  projectId,
   chains: [sonicBlaze],
   defaultChain: sonicBlaze,
   featuredWalletIds: [],
@@ -56,4 +35,3 @@ createWeb3Modal({
     '--w3m-accent': '#3182CE',
   },
 });
-*/
