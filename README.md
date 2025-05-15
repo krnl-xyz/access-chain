@@ -63,10 +63,12 @@ npm run dev
 | AccessDAO | 0x0081FB567ae0851f8fa47E39c6e3882e9f91e10F | Sonic Testnet |
 
 ## 📸 Screenshots
-View our application screenshots:
-- [Admin Dashboard](./screenshots/admin-dashboard.png)
-- [Grant Management](./screenshots/grant-management.png)
-- [User Interface](./screenshots/user-interface.png)
+
+![Admin Dashboard](screenshots/admin-dashboard.png)
+![Grant Management](screenshots/grant-management.png)
+![User Interface](screenshots/user-interface.png)
+![Grant Details](screenshots/grant-details.png)
+![User Dashboard](screenshots/user-dashboard.png)
 
 ## 🎥 Demo Video
 [Watch our demo video](https://vimeo.com/1084558401/d69f80400a) to see AccessChain in action.
