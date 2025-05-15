@@ -63,13 +63,15 @@ npm run dev
 | AccessDAO | 0x0081FB567ae0851f8fa47E39c6e3882e9f91e10F | Sonic Testnet |
 
 ## 📸 Screenshots
-[Screenshots coming soon]
+Check out our application screenshots in the [screenshots](./screenshots) directory.
 
 ## 🎥 Demo Video
-[Demo video coming soon]
+Watch our demo video in the [demo](./demo) directory to see AccessChain in action.
 
-## Authors
+## Team
 - Richmond Andoh (Full-Stack Developer)
+- Agyemang Nana Akua (Frontend Developer)
+- Adwoa Favour (UI/UX Designer)
 
 ## 📄 License
 MIT
