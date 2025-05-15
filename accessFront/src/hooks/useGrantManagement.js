@@ -3,7 +3,7 @@ import { CONTRACT_ADDRESSES } from '../config/contracts';
 import { accessGrantAbi } from '../config/grantAbi';
 import { ngoAccessControlAbi } from '../config/ngoAbi';
 import { useState } from 'react';
-import { createWalletClient, custom, parseEther, parseUnits } from 'viem';
+import { createWalletClient, custom, parseEther, parseUnits, formatEther } from 'viem';
 import { sonicBlaze } from '../config/chains';
 
 export function useGrantManagement() {
@@ -337,6 +337,35 @@ export function useGrantManagement() {
     isOwnedByCurrentUser: grant.ngo.toLowerCase() === (address || '').toLowerCase()
   }));
 
+  // Add getNGODonations function to get donation data
+  const getNGODonations = async (ngoAddress) => {
+    if (!publicClient || !ngoAddress) return { total: "0", transactions: [] };
+    
+    try {
+      console.log("Fetching donations for NGO:", ngoAddress);
+      
+      // Get the current balance of the NGO address
+      const balance = await publicClient.getBalance({
+        address: ngoAddress,
+      });
+      
+      // Format the balance to a readable string
+      const formattedBalance = formatEther(balance);
+      
+      // In a real application, you would query transaction history 
+      // from an indexer or explorer API to get actual donation transactions
+      // For this demo, we'll assume the entire balance came from donations
+      
+      return {
+        total: formattedBalance,
+        transactions: [],  // Would contain actual transaction history in a real app
+      };
+    } catch (error) {
+      console.error("Error fetching NGO donations:", error);
+      return { total: "0", transactions: [] };
+    }
+  };
+
   return {
     // Read States
     grants: formattedGrants,
@@ -350,6 +379,9 @@ export function useGrantManagement() {
     applyForGrant,
     approveApplication,
     rejectApplication,
+    
+    // Donation Functions
+    getNGODonations,
 
     // Transaction States
     isPending,

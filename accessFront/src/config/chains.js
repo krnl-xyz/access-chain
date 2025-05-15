@@ -13,6 +13,7 @@ export const sonicBlaze = {
         'https://rpc.blaze.soniclabs.com',
         'https://rpc.sonic.blaze.testnet',
         'https://blaze.testnet.sonic.explorerswap.com',
+        'https://rpc.krnl.xyz',  // KRNL RPC endpoint
       ],
     },
     public: {
@@ -21,7 +22,7 @@ export const sonicBlaze = {
         'https://rpc.sonic.blaze.testnet',
         'https://blaze.testnet.sonic.explorerswap.com',
       ],
-    },
+    }
   },
   blockExplorers: {
     default: {
@@ -30,4 +31,4 @@ export const sonicBlaze = {
     },
   },
   testnet: true,
-}; 
+};

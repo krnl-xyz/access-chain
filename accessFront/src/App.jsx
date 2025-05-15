@@ -55,16 +55,16 @@ function App() {
     <WagmiConfig config={wagmiConfig}>
       <AccessibilityProvider>
         <ThemeWrapper>
-          <Router>
-            <Layout>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/faq" element={<FAQ />} />
-                <Route path="/terms" element={<Terms />} />
-                <Route path="/privacy" element={<Privacy />} />
-                <Route path="/donor-dashboard" element={<DonorDashboard />} />
+            <Router>
+              <Layout>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/faq" element={<FAQ />} />
+                  <Route path="/terms" element={<Terms />} />
+                  <Route path="/privacy" element={<Privacy />} />
+                  <Route path="/donor-dashboard" element={<DonorDashboard />} />
                 
                 {/* Demo Dashboard */}
                 <Route path="/demo" element={<DemoDashboard />} />
@@ -95,8 +95,8 @@ function App() {
                 } />
                 <Route path="/grants/:grantId" element={<GrantDetailPage />} />
                 <Route path="/grants/:grantId/apply" element={<GrantApplicationPage />} />
-                <Route path="/grant-request" element={<GrantRequest />} />
-                <Route path="/grant/:id" element={<GrantDetails />} />
+                  <Route path="/grant-request" element={<GrantRequest />} />
+                  <Route path="/grant/:id" element={<GrantDetails />} />
                 
                 {/* Admin Routes */}
                 <Route path="/admin-dashboard" element={<AdminDashboard />} />
@@ -106,14 +106,14 @@ function App() {
                 <Route path="/accessibility/onboarding" element={<DisabilityOnboarding />} />
                 <Route path="/accessibility/settings" element={<AccessibilitySettings />} />
                 
-                <Route path="/profile" element={<Profile />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Layout>
-          </Router>
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Layout>
+            </Router>
         </ThemeWrapper>
       </AccessibilityProvider>
-    </WagmiConfig>
+        </WagmiConfig>
   );
 }
 

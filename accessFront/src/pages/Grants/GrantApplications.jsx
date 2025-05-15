@@ -73,7 +73,7 @@ const GrantApplications = () => {
   const cardBg = useColorModeValue('white', 'gray.700');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
   const headerBg = useColorModeValue('blue.50', 'blue.900');
-  
+
   // Fetch grant data and applications
   useEffect(() => {
     const fetchGrantData = async () => {
@@ -511,7 +511,7 @@ const GrantApplications = () => {
                 </HStack>
                 
                 <Text fontWeight="bold">Submitted On:</Text>
-                <Text>{new Date(selectedApplication.timestamp).toLocaleString()}</Text>
+                  <Text>{new Date(selectedApplication.timestamp).toLocaleString()}</Text>
               </VStack>
             </ModalBody>
             
@@ -528,7 +528,7 @@ const GrantApplications = () => {
                   </Button>
                   <Button 
                     colorScheme="red" 
-                    mr={3} 
+                    mr={3}
                     onClick={() => handleReject(selectedApplication.id)}
                     isLoading={isPending || isTransactionLoading}
                   >

@@ -71,7 +71,7 @@ export default function Home() {
     
     return () => clearTimeout(timer);
   }, [onOpen]);
-  
+
   return (
     <Box>
       {/* Hero Section with Animation */}
@@ -115,7 +115,7 @@ export default function Home() {
           <Grid templateColumns={{ base: "1fr", lg: "1fr 1fr" }} gap={8} alignItems="center">
             <GridItem>
               <Fade in={true} transition={{ enter: { duration: 0.8 } }}>
-                <Heading
+          <Heading
                   as="h1"
                   size="2xl"
                   fontWeight="bold"
@@ -123,7 +123,7 @@ export default function Home() {
                   mb={6}
                 >
                   <chakra.span color="blue.500">AccessChain:</chakra.span> Empowering People with Disabilities through Blockchain
-                </Heading>
+          </Heading>
                 
                 <Text
                   fontSize="xl"
@@ -132,11 +132,11 @@ export default function Home() {
                 >
                   A decentralized platform connecting individuals with disabilities to funding and resources 
                   while ensuring transparency and direct support without intermediaries.
-                </Text>
+          </Text>
                 
                 <HStack spacing={4} mb={8}>
-                  <Button
-                    as={RouterLink}
+            <Button
+              as={RouterLink}
                     to="/grants"
                     size="lg"
                     colorScheme="blue"
@@ -146,10 +146,10 @@ export default function Home() {
                     leftIcon={<FaHandHoldingHeart />}
                   >
                     Browse Grants
-                  </Button>
+            </Button>
                   
-                  <Button
-                    as={RouterLink}
+            <Button
+              as={RouterLink}
                     to="/demo"
                     size="lg"
                     variant="outline"
@@ -159,7 +159,7 @@ export default function Home() {
                     px={8}
                   >
                     Try Demo
-                  </Button>
+            </Button>
                 </HStack>
                 
                 <HStack spacing={6} wrap="wrap">
@@ -202,7 +202,7 @@ export default function Home() {
                         transform: index % 2 === 0 ? "rotate(-5deg) scale(1.05)" : "rotate(5deg) scale(1.05)",
                         zIndex: 10
                       }}
-                    />
+              />
                   </SlideFade>
                 ))}
                 
@@ -308,7 +308,7 @@ export default function Home() {
               </SlideFade>
             ))}
           </Grid>
-        </Container>
+      </Container>
       </Box>
       
       {/* Success Stories Section */}
@@ -321,7 +321,7 @@ export default function Home() {
               </Heading>
               <Text fontSize="lg" maxW="800px" mx="auto" color={useColorModeValue("gray.600", "gray.300")}>
                 See how AccessChain is transforming lives through blockchain-powered funding and resource allocation.
-              </Text>
+          </Text>
             </Box>
           </Fade>
 
