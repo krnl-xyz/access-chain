@@ -66,7 +66,7 @@ npm run dev
 Check out our application screenshots in the [screenshots](./screenshots) directory.
 
 ## 🎥 Demo Video
-Watch our demo video in the [demo](./demo) directory to see AccessChain in action.
+[Watch our demo video](https://youtu.be/your-video-id) to see AccessChain in action.
 
 ## Team
 - Richmond Andoh (Full-Stack Developer)
