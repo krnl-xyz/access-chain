@@ -2,114 +2,81 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "./interfaces/IKRNLVerifier.sol";
 
 /**
  * @title KrnlEnabled
  * @dev Base contract for KRNL integration with AccessChain contracts
  */
 contract KrnlEnabled is Ownable {
-    // KRNL Kernel addresses
-    address public disabilityVerificationKernelAddress;
-    address public resourceMatchingKernelAddress;
-    address public impactAnalysisKernelAddress;
+    // KRNL Verifier interface
+    IKRNLVerifier public krnlVerifier;
     
     // Events
-    event KernelCallRequested(address indexed kernel, bytes data);
-    event KernelResponseReceived(address indexed kernel, bytes response);
+    event VerificationRequested(address indexed user, bytes data);
+    event VerificationCompleted(address indexed user, bool verified, bytes data);
     
     // Modifiers
-    modifier onlyKernel(address kernelAddress) {
+    modifier onlyKrnlVerifier() {
         require(
-            msg.sender == kernelAddress,
-            "KrnlEnabled: caller is not the specified kernel"
+            msg.sender == address(krnlVerifier),
+            "KrnlEnabled: caller is not the KRNL verifier"
         );
         _;
     }
     
     /**
-     * @dev Set the address of a KRNL kernel
-     * @param kernelType The type of kernel (0: Disability Verification, 1: Resource Matching, 2: Impact Analysis)
-     * @param kernelAddress The address of the kernel
+     * @dev Set the address of the KRNL verifier contract
+     * @param verifierAddress The address of the KRNL verifier contract
      */
-    function setKernelAddress(uint8 kernelType, address kernelAddress) external onlyOwner {
-        require(kernelAddress != address(0), "KrnlEnabled: kernel address cannot be zero");
-        
-        if (kernelType == 0) {
-            disabilityVerificationKernelAddress = kernelAddress;
-        } else if (kernelType == 1) {
-            resourceMatchingKernelAddress = kernelAddress;
-        } else if (kernelType == 2) {
-            impactAnalysisKernelAddress = kernelAddress;
-        } else {
-            revert("KrnlEnabled: invalid kernel type");
-        }
+    function setKrnlVerifier(address verifierAddress) external onlyOwner {
+        require(verifierAddress != address(0), "KrnlEnabled: verifier address cannot be zero");
+        krnlVerifier = IKRNLVerifier(verifierAddress);
     }
     
     /**
-     * @dev Call the disability verification kernel
+     * @dev Request disability verification from KRNL
      * @param userId The user ID to verify
      * @param data Additional data for verification
+     * @return requestId The unique identifier for this verification request
      */
-    function verifyDisabilityStatus(string calldata userId, bytes calldata data) external {
-        require(disabilityVerificationKernelAddress != address(0), "KrnlEnabled: kernel not set");
+    function verifyDisabilityStatus(string memory userId, bytes memory data) internal returns (bytes32) {
+        require(address(krnlVerifier) != address(0), "KrnlEnabled: verifier not set");
         
-        // Prepare the data to send to the kernel
-        bytes memory callData = abi.encode(userId, data);
+        bytes32 requestId = krnlVerifier.requestVerification(msg.sender, data);
+        emit VerificationRequested(msg.sender, data);
         
-        // Emit event for the kernel to pick up
-        emit KernelCallRequested(disabilityVerificationKernelAddress, callData);
+        return requestId;
     }
     
     /**
-     * @dev Receive response from the disability verification kernel
-     * @param response The verification result
+     * @dev Check if a user is verified
+     * @param user The address to check
+     * @return bool True if the user is verified
      */
-    function receiveDisabilityVerification(bytes calldata response) 
-        external 
-        onlyKernel(disabilityVerificationKernelAddress) 
-    {
-        // Process the response from the kernel
-        emit KernelResponseReceived(disabilityVerificationKernelAddress, response);
-        
-        // Implementation-specific logic to handle the response
-        // This would typically decode the response and update contract state
+    function isUserVerified(address user) public view returns (bool) {
+        require(address(krnlVerifier) != address(0), "KrnlEnabled: verifier not set");
+        return krnlVerifier.isVerified(user);
     }
     
     /**
-     * @dev Call the resource matching kernel
-     * @param userId The user ID
-     * @param needs User needs data
+     * @dev Get verification data for a user
+     * @param user The address to check
+     * @return bytes The verification data
      */
-    function findMatchingGrants(string calldata userId, bytes calldata needs) external {
-        require(resourceMatchingKernelAddress != address(0), "KrnlEnabled: kernel not set");
-        
-        // Prepare the data to send to the kernel
-        bytes memory callData = abi.encode(userId, needs);
-        
-        // Emit event for the kernel to pick up
-        emit KernelCallRequested(resourceMatchingKernelAddress, callData);
+    function getUserVerificationData(address user) public view returns (bytes memory) {
+        require(address(krnlVerifier) != address(0), "KrnlEnabled: verifier not set");
+        return krnlVerifier.getVerificationData(user);
     }
     
     /**
-     * @dev Receive response from the resource matching kernel
-     * @param response The matching result
+     * @dev Check verification status for a request
+     * @param requestId The request ID to check
+     * @return completed Whether the verification is completed
+     * @return verified Whether the user is verified
      */
-    function receiveGrantMatching(bytes calldata response) 
-        external 
-        onlyKernel(resourceMatchingKernelAddress) 
-    {
-        // Process the response from the kernel
-        emit KernelResponseReceived(resourceMatchingKernelAddress, response);
-        
-        // Implementation-specific logic
-    }
-    
-    /**
-     * @dev Helper function to decode response from kernels
-     * @param response The encoded response
-     * @return The decoded response
-     */
-    function decodeKernelResponse(bytes memory response) internal pure returns (bool success, bytes memory data) {
-        (success, data) = abi.decode(response, (bool, bytes));
+    function checkVerificationStatus(bytes32 requestId) public view returns (bool completed, bool verified) {
+        require(address(krnlVerifier) != address(0), "KrnlEnabled: verifier not set");
+        return krnlVerifier.getVerificationStatus(requestId);
     }
 } 

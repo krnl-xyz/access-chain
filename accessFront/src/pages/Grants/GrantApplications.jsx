@@ -36,12 +36,16 @@ import {
   ModalFooter,
   ModalCloseButton,
   useDisclosure,
+  Link,
 } from '@chakra-ui/react';
 import { ChevronLeftIcon, ViewIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons';
 import { CONTRACT_ADDRESSES, CONTRACT_ABIS } from '../../config/contracts';
 import { useNGOAccessControl } from '../../hooks/useNGOAccessControl';
 import { useGrantManagement } from '../../hooks/useGrantManagement';
 import { sonicBlaze } from '../../config/chains';
+import GrantReviewPanel from '../../components/GrantReviewPanel';
+import { FaCheck, FaTimes, FaArrowLeft } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 
 const GrantApplications = () => {
   const { grantId } = useParams();
@@ -61,7 +65,8 @@ const GrantApplications = () => {
     isPending,
     isSuccess,
     error,
-    isTransactionLoading
+    isTransactionLoading,
+    getGrantApplications,
   } = useGrantManagement();
 
   const [loading, setLoading] = useState(true);
@@ -69,6 +74,7 @@ const GrantApplications = () => {
   const [applications, setApplications] = useState([]);
   const [isGrantCreator, setIsGrantCreator] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState(null);
+  const [processingAction, setProcessingAction] = useState(false);
 
   const cardBg = useColorModeValue('white', 'gray.700');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
@@ -119,44 +125,16 @@ const GrantApplications = () => {
         
         setGrantData(formattedGrant);
         
-        // For a full application, we would fetch events from the blockchain
-        // or use a subgraph to get all applications for this grant
-        // This is a placeholder - in reality you'd implement this with contract events
+        // Fetch applications
+        const applicationsData = await getGrantApplications(grantId);
         
-        // Example of how to get application data - in a real app this would be from events
-        const applicationsData = [
-          // These are example applications - replace with real data
-          {
-            id: '1',
-            applicant: '0x1234567890abcdef1234567890abcdef12345678',
-            proposalJson: JSON.stringify({
-              projectTitle: 'Water Sanitation Project',
-              projectSummary: 'Improving access to clean water in rural communities',
-              objectives: 'Drill wells, build filtration systems, educate community',
-              beneficiaryCount: '500',
-              implementationStrategy: 'Partner with local organizations, use local labor',
-              budget: '5000 SONIC for equipment, 3000 SONIC for labor'
-            }),
-            timestamp: Date.now() - 3 * 24 * 60 * 60 * 1000, // 3 days ago
-            status: 'pending'
-          },
-          {
-            id: '2',
-            applicant: '0xabcdef1234567890abcdef1234567890abcdef12',
-            proposalJson: JSON.stringify({
-              projectTitle: 'Solar Power Initiative',
-              projectSummary: 'Providing renewable energy solutions to off-grid communities',
-              objectives: 'Install solar panels for 100 households, train local technicians',
-              beneficiaryCount: '350',
-              implementationStrategy: 'Partner with solar providers, create maintenance team',
-              budget: '7000 SONIC for equipment, 2000 SONIC for training'
-            }),
-            timestamp: Date.now() - 5 * 24 * 60 * 60 * 1000, // 5 days ago
-            status: 'pending'
-          }
-        ];
-        
-        setApplications(applicationsData);
+        setApplications(applicationsData.map(app => ({
+          id: app.id.toString(),
+          applicant: app.applicant,
+          proposal: app.proposal,
+          status: app.status,
+          submittedAt: new Date(Number(app.submittedAt) * 1000).toLocaleDateString(),
+        })));
       } catch (error) {
         console.error('Error fetching grant data:', error);
         toast({
@@ -235,37 +213,17 @@ const GrantApplications = () => {
     }
     
     try {
-      const app = applications.find(a => a.id === applicationId);
-      if (!app) throw new Error('Application not found');
-      
-      toast({
-        title: 'Processing',
-        description: 'Please confirm the transaction in your wallet',
-        status: 'info',
-        duration: null,
-        isClosable: false
-      });
-      
-      // Use the grant management hook to approve the application
-      await approveApplication(Number(grantId), app.applicant);
-      
-      // Update local state - this will be temporary until the transaction is confirmed
-      // In a real app, you'd wait for the transaction to be confirmed and then refresh data
-      const updatedApplications = applications.map(a => 
-        a.id === applicationId ? { ...a, status: 'approved' } : a
-      );
-      
+      setProcessingAction(true);
+      await approveApplication(Number(grantId), applicationId);
+      toast.success('Application approved successfully');
+      // Refresh applications
+      const updatedApplications = await getGrantApplications(Number(grantId));
       setApplications(updatedApplications);
     } catch (error) {
       console.error('Error approving application:', error);
-      toast.closeAll();
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to approve application',
-        status: 'error',
-        duration: 5000,
-        isClosable: true
-      });
+      toast.error(error.message || 'Failed to approve application');
+    } finally {
+      setProcessingAction(false);
     }
   };
 
@@ -283,37 +241,17 @@ const GrantApplications = () => {
     }
     
     try {
-      const app = applications.find(a => a.id === applicationId);
-      if (!app) throw new Error('Application not found');
-      
-      toast({
-        title: 'Processing',
-        description: 'Please confirm the transaction in your wallet',
-        status: 'info',
-        duration: null,
-        isClosable: false
-      });
-      
-      // Use the grant management hook to reject the application
-      await rejectApplication(Number(grantId), app.applicant);
-      
-      // Update local state - this will be temporary until the transaction is confirmed
-      // In a real app, you'd wait for the transaction to be confirmed and then refresh data
-      const updatedApplications = applications.map(a => 
-        a.id === applicationId ? { ...a, status: 'rejected' } : a
-      );
-      
+      setProcessingAction(true);
+      await rejectApplication(Number(grantId), applicationId);
+      toast.success('Application rejected successfully');
+      // Refresh applications
+      const updatedApplications = await getGrantApplications(Number(grantId));
       setApplications(updatedApplications);
     } catch (error) {
       console.error('Error rejecting application:', error);
-      toast.closeAll();
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to reject application',
-        status: 'error',
-        duration: 5000,
-        isClosable: true
-      });
+      toast.error(error.message || 'Failed to reject application');
+    } finally {
+      setProcessingAction(false);
     }
   };
 
@@ -407,7 +345,7 @@ const GrantApplications = () => {
         ) : (
           <VStack spacing={4} align="stretch">
             {applications.map(app => {
-              const appData = parseApplicationData(app.proposalJson);
+              const appData = parseApplicationData(app.proposal);
               return (
                 <Card 
                   key={app.id} 
@@ -438,6 +376,7 @@ const GrantApplications = () => {
                     <Divider my={3} />
                     <HStack justify="space-between">
                       <Text fontSize="sm" color="gray.500">
+                        Submitted: {app.submittedAt}
                         Submitted: {new Date(app.timestamp).toLocaleDateString()}
                       </Text>
                       <HStack spacing={2}>
@@ -450,20 +389,22 @@ const GrantApplications = () => {
                         {app.status === 'pending' && (
                           <>
                             <IconButton
-                              icon={<CheckIcon />}
+                              icon={<FaCheck />}
                               size="sm"
                               colorScheme="green"
                               onClick={() => handleApprove(app.id)}
                               aria-label="Approve application"
-                              isLoading={isPending || isTransactionLoading}
+                              isLoading={processingAction}
+                              loadingText="Approving..."
                             />
                             <IconButton
-                              icon={<CloseIcon />}
+                              icon={<FaTimes />}
                               size="sm"
                               colorScheme="red"
                               onClick={() => handleReject(app.id)}
                               aria-label="Reject application"
-                              isLoading={isPending || isTransactionLoading}
+                              isLoading={processingAction}
+                              loadingText="Rejecting..."
                             />
                           </>
                         )}
@@ -522,7 +463,7 @@ const GrantApplications = () => {
                     colorScheme="green" 
                     mr={3} 
                     onClick={() => handleApprove(selectedApplication.id)}
-                    isLoading={isPending || isTransactionLoading}
+                    isLoading={processingAction}
                   >
                     Approve
                   </Button>
@@ -530,7 +471,7 @@ const GrantApplications = () => {
                     colorScheme="red" 
                     mr={3}
                     onClick={() => handleReject(selectedApplication.id)}
-                    isLoading={isPending || isTransactionLoading}
+                    isLoading={processingAction}
                   >
                     Reject
                   </Button>

@@ -24,7 +24,7 @@ async function main() {
 
     // Deploy AccessToken
     const AccessToken = await hre.ethers.getContractFactory("AccessToken");
-    const accessToken = await AccessToken.deploy();
+    const accessToken = await AccessToken.deploy(await ngoAccessControl.getAddress());
     await accessToken.waitForDeployment();
     console.log("AccessToken deployed to:", await accessToken.getAddress());
 
@@ -82,7 +82,7 @@ async function main() {
 
         await hre.run("verify:verify", {
             address: await accessToken.getAddress(),
-            constructorArguments: [],
+            constructorArguments: [await ngoAccessControl.getAddress()],
         });
         console.log("AccessToken verified");
 

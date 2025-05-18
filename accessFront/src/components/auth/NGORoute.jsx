@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, useParams } from 'react-router-dom';
 import { useNGOAccessControl } from '../../hooks/useNGOAccessControl';
 import {
   Box,
@@ -17,6 +17,7 @@ import {
 
 const NGORoute = ({ children }) => {
   const location = useLocation();
+  const { ngoAddress } = useParams();
   const { isAuthorized, isLoadingAuthorization } = useNGOAccessControl();
   const bgColor = useColorModeValue('gray.50', 'gray.900');
 

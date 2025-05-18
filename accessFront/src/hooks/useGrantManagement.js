@@ -1,5 +1,5 @@
-import { useContractRead, useWaitForTransaction, useAccount, useChainId } from 'wagmi';
-import { CONTRACT_ADDRESSES } from '../config/contracts';
+import { useContractRead, useWaitForTransaction, useAccount, useChainId, usePublicClient, useWalletClient } from 'wagmi';
+import { CONTRACT_ADDRESSES, CONTRACT_ABIS } from '../config/contracts';
 import { accessGrantAbi } from '../config/grantAbi';
 import { ngoAccessControlAbi } from '../config/ngoAbi';
 import { useState } from 'react';
@@ -14,6 +14,11 @@ export function useGrantManagement() {
   const [lastTransactionHash, setLastTransactionHash] = useState(null);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState(null);
+  const [isTransactionLoading, setIsTransactionLoading] = useState(false);
+  const [isTransactionComplete, setIsTransactionComplete] = useState(false);
+
+  const publicClient = usePublicClient({ chainId: sonicBlaze.id });
+  const { data: walletClient } = useWalletClient({ chainId: sonicBlaze.id });
 
   // Debug: Log all contract addresses to verify they're correct
   console.log('Contract Addresses:', {
@@ -64,13 +69,13 @@ export function useGrantManagement() {
     }
   });
 
-  // Ensure grants is always an array
+  // Ensure grants is always an array and filter by NGO address
   const grants = Array.isArray(grantsData) ? grantsData : [];
 
   // Transaction Status
   const {
-    isLoading: isTransactionLoading,
-    isSuccess: isTransactionSuccess
+    isLoading: isTransactionPending,
+    isSuccess: isTransactionConfirmed
   } = useWaitForTransaction({
     hash: lastTransactionHash,
     enabled: Boolean(lastTransactionHash),
@@ -78,11 +83,13 @@ export function useGrantManagement() {
       refetchGrants();
       setIsSuccess(true);
       setIsPending(false);
+      setIsTransactionComplete(true);
     },
     onError: (err) => {
       console.error('Transaction error:', err);
       setError(err);
       setIsPending(false);
+      setIsTransactionComplete(false);
     }
   });
 
@@ -251,91 +258,193 @@ export function useGrantManagement() {
 
   // Apply for Grant
   const applyForGrant = async (grantId, proposal) => {
-    console.log('Applying for Grant:', {
-      grantId,
-      proposal,
-      isConnected,
-      isCorrectNetwork,
-      address
-    });
-
-    if (!grantId || isNaN(Number(grantId))) {
-      throw new Error('Invalid grant ID');
+    if (!isConnected) {
+      throw new Error('Please connect your wallet first');
     }
 
-    if (!proposal || typeof proposal !== 'string' || proposal.trim() === '') {
-      throw new Error('Proposal content is required');
+    if (!isCorrectNetwork) {
+      throw new Error('Please switch to Sonic Blaze Testnet (Chain ID: 57054)');
     }
 
-    return executeContractWrite('applyForGrant', [BigInt(grantId), proposal]);
+    if (!address) {
+      throw new Error('No wallet address available');
+    }
+
+    setIsPending(true);
+    setError(null);
+
+    try {
+      // Create a wallet client using the injected provider (MetaMask, etc.)
+      const walletClient = createWalletClient({
+        chain: sonicBlaze,
+        transport: custom(window.ethereum)
+      });
+
+      // Request account access if needed
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+      // Execute the contract write function with explicit gas settings
+      const hash = await walletClient.writeContract({
+        address: CONTRACT_ADDRESSES.accessGrant,
+        abi: accessGrantAbi,
+        functionName: 'applyForGrant',
+        args: [grantId, proposal],
+        account: address,
+        chain: sonicBlaze,
+        gas: BigInt(3000000), // Explicit gas limit
+      });
+
+      console.log('Apply for Grant Transaction Hash:', hash);
+      setLastTransactionHash(hash);
+      setIsTransactionLoading(true);
+
+      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      setIsTransactionComplete(true);
+      setIsSuccess(true);
+
+      return receipt;
+    } catch (err) {
+      console.error('Error applying for grant:', err);
+      
+      // Provide more user-friendly error messages
+      let errorMessage = err.message;
+      
+      if (err.message.includes('Internal JSON-RPC error')) {
+        const revertReason = err.message.match(/reverted with reason string '([^']+)'/);
+        if (revertReason && revertReason[1]) {
+          errorMessage = `Contract error: ${revertReason[1]}`;
+        } else {
+          errorMessage = 'Contract error: The transaction was rejected by the contract. Check if you have required permissions or if the parameters are valid.';
+        }
+      } else if (err.message.includes('user rejected transaction')) {
+        errorMessage = 'Transaction was rejected in your wallet.';
+      } else if (err.message.includes('insufficient funds')) {
+        errorMessage = 'Insufficient funds for gas fees. Please add more SONIC to your wallet.';
+      }
+      
+      setError({ ...err, message: errorMessage });
+      throw { ...err, message: errorMessage };
+    } finally {
+      setIsPending(false);
+      setIsTransactionLoading(false);
+    }
   };
 
   // Approve Application
-  const approveApplication = async (grantId, applicant) => {
-    console.log('Approving Application:', {
-      grantId,
-      applicant,
-      isAuthorizedNGO,
-      isConnected,
-      isCorrectNetwork,
-      address
-    });
-
-    if (!isAuthorizedNGO) {
-      throw new Error('Only authorized NGOs can approve applications');
+  const approveApplication = async (grantId, applicationId) => {
+    if (!walletClient) {
+      setError('Wallet not connected');
+      return;
     }
 
-    if (!grantId || isNaN(Number(grantId))) {
-      throw new Error('Invalid grant ID');
-    }
+    try {
+      setIsPending(true);
+      setError(null);
 
-    if (!applicant || typeof applicant !== 'string' || !applicant.match(/^0x[a-fA-F0-9]{40}$/)) {
-      throw new Error('Invalid applicant address');
-    }
+      const { request } = await publicClient.simulateContract({
+        address: CONTRACT_ADDRESSES.accessGrant,
+        abi: CONTRACT_ABIS.accessGrant,
+        functionName: 'approveApplication',
+        args: [grantId, applicationId],
+        account: walletClient.account.address,
+      });
 
-    return executeContractWrite('approveApplication', [BigInt(grantId), applicant]);
+      const hash = await walletClient.writeContract(request);
+      setIsTransactionLoading(true);
+
+      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      setIsTransactionComplete(true);
+      setIsSuccess(true);
+
+      return receipt;
+    } catch (err) {
+      console.error('Error approving application:', err);
+      setError(err.message || 'Failed to approve application');
+      throw err;
+    } finally {
+      setIsPending(false);
+      setIsTransactionLoading(false);
+    }
   };
 
   // Reject Application
-  const rejectApplication = async (grantId, applicant) => {
-    console.log('Rejecting Application:', {
-      grantId,
-      applicant,
-      isAuthorizedNGO,
-      isConnected,
-      isCorrectNetwork,
-      address
-    });
-
-    if (!isAuthorizedNGO) {
-      throw new Error('Only authorized NGOs can reject applications');
+  const rejectApplication = async (grantId, applicationId) => {
+    if (!walletClient) {
+      setError('Wallet not connected');
+      return;
     }
 
-    if (!grantId || isNaN(Number(grantId))) {
-      throw new Error('Invalid grant ID');
-    }
+    try {
+      setIsPending(true);
+      setError(null);
 
-    if (!applicant || typeof applicant !== 'string' || !applicant.match(/^0x[a-fA-F0-9]{40}$/)) {
-      throw new Error('Invalid applicant address');
-    }
+      const { request } = await publicClient.simulateContract({
+        address: CONTRACT_ADDRESSES.accessGrant,
+        abi: CONTRACT_ABIS.accessGrant,
+        functionName: 'rejectApplication',
+        args: [grantId, applicationId],
+        account: walletClient.account.address,
+      });
 
-    return executeContractWrite('rejectApplication', [BigInt(grantId), applicant]);
+      const hash = await walletClient.writeContract(request);
+      setIsTransactionLoading(true);
+
+      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      setIsTransactionComplete(true);
+      setIsSuccess(true);
+
+      return receipt;
+    } catch (err) {
+      console.error('Error rejecting application:', err);
+      setError(err.message || 'Failed to reject application');
+      throw err;
+    } finally {
+      setIsPending(false);
+      setIsTransactionLoading(false);
+    }
   };
 
-  // Format grants data for UI
-  const formattedGrants = grants.map(grant => ({
-    id: Number(grant.id),
-    title: grant.title,
-    description: grant.description,
-    amount: grant.amount.toString(),
-    deadline: Number(grant.deadline),
-    ngo: grant.ngo,
-    isActive: grant.isActive,
-    // Add additional UI-friendly properties
-    deadlineDate: new Date(Number(grant.deadline) * 1000).toLocaleString(),
-    isExpired: Number(grant.deadline) < Math.floor(Date.now() / 1000),
-    isOwnedByCurrentUser: grant.ngo.toLowerCase() === (address || '').toLowerCase()
-  }));
+  // Format grants data for UI with proper NGO filtering
+  const formattedGrants = grants.map(grant => {
+    // Ensure we have valid data
+    if (!grant || !grant.ngo) {
+      console.log('Invalid grant data:', grant);
+      return null;
+    }
+
+    // Format the grant data
+    const formattedGrant = {
+      id: Number(grant.id),
+      title: grant.title,
+      description: grant.description,
+      amount: grant.amount.toString(),
+      deadline: Number(grant.deadline),
+      ngo: grant.ngo.toLowerCase(), // Normalize NGO address to lowercase
+      isActive: grant.isActive,
+      deadlineDate: new Date(Number(grant.deadline) * 1000).toLocaleString(),
+      isExpired: Number(grant.deadline) < Math.floor(Date.now() / 1000),
+      isOwnedByCurrentUser: grant.ngo.toLowerCase() === (address || '').toLowerCase()
+    };
+
+    console.log('Formatted grant:', {
+      id: formattedGrant.id,
+      ngo: formattedGrant.ngo,
+      title: formattedGrant.title,
+      isOwnedByCurrentUser: formattedGrant.isOwnedByCurrentUser,
+      rawNGO: grant.ngo // Log the raw NGO address for debugging
+    });
+
+    return formattedGrant;
+  }).filter(Boolean); // Remove any null grants
+
+  // Debug log all grants with their NGO addresses
+  console.log('All formatted grants:', formattedGrants.map(g => ({
+    id: g.id,
+    ngo: g.ngo,
+    rawNGO: g.rawNGO,
+    title: g.title,
+    isOwnedByCurrentUser: g.isOwnedByCurrentUser
+  })));
 
   // Add getNGODonations function to get donation data
   const getNGODonations = async (ngoAddress) => {
@@ -366,6 +475,40 @@ export function useGrantManagement() {
     }
   };
 
+  const getGrantApplications = async (grantId) => {
+    try {
+      const applications = await publicClient.readContract({
+        address: CONTRACT_ADDRESSES.accessGrant,
+        abi: CONTRACT_ABIS.accessGrant,
+        functionName: 'getGrantApplications',
+        args: [grantId],
+      });
+
+      return applications;
+    } catch (err) {
+      console.error('Error fetching grant applications:', err);
+      setError(err.message || 'Failed to fetch grant applications');
+      throw err;
+    }
+  };
+
+  const getApplicationDetails = async (grantId, applicationId) => {
+    try {
+      const application = await publicClient.readContract({
+        address: CONTRACT_ADDRESSES.accessGrant,
+        abi: CONTRACT_ABIS.accessGrant,
+        functionName: 'getApplication',
+        args: [grantId, applicationId],
+      });
+
+      return application;
+    } catch (err) {
+      console.error('Error fetching application details:', err);
+      setError(err.message || 'Failed to fetch application details');
+      throw err;
+    }
+  };
+
   return {
     // Read States
     grants: formattedGrants,
@@ -388,7 +531,9 @@ export function useGrantManagement() {
     isSuccess,
     error,
     isTransactionLoading,
-    isTransactionSuccess,
+    isTransactionPending,
+    isTransactionComplete,
+    isTransactionConfirmed,
 
     // Refetch Functions
     refetchGrants,
@@ -396,6 +541,10 @@ export function useGrantManagement() {
 
     // Network State
     isCorrectNetwork,
-    chainId
+    chainId,
+
+    // New functions
+    getGrantApplications,
+    getApplicationDetails
   };
 }

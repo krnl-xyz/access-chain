@@ -1,16 +1,20 @@
 import { useContractRead, useWaitForTransaction, useAccount, useChainId, usePublicClient } from 'wagmi';
 import { CONTRACT_ADDRESSES, NGOAccessControlABI } from '../config/contracts';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { createWalletClient, custom } from 'viem';
 import { sonicBlaze } from '../config/chains';
+import { useParams } from 'react-router-dom';
 
 export function useNGOAccessControl() {
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
   const publicClient = usePublicClient();
   const isCorrectNetwork = chainId === 57054;
+  const { ngoAddress } = useParams();
   
   // State management
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [isLoadingAuthorization, setIsLoadingAuthorization] = useState(true);
   const [operationState, setOperationState] = useState({
     isPending: false,
     isSuccess: false,
@@ -24,6 +28,37 @@ export function useNGOAccessControl() {
   console.log('Contract Address:', CONTRACT_ADDRESSES.ngoAccessControl);
   console.log('Network State:', { chainId, isCorrectNetwork, isConnected });
   console.log('Connected Address:', address);
+  console.log('NGO Address:', ngoAddress);
+
+  // Check if the current address is authorized as an NGO
+  useEffect(() => {
+    const checkAuthorization = async () => {
+      if (!isConnected || !isCorrectNetwork || !address) {
+        setIsAuthorized(false);
+        setIsLoadingAuthorization(false);
+        return;
+      }
+
+      try {
+        const isAuthorizedData = await publicClient.readContract({
+          address: CONTRACT_ADDRESSES.ngoAccessControl,
+          abi: NGOAccessControlABI,
+          functionName: 'isAuthorizedNGO',
+          args: [address],
+        });
+
+        console.log('Authorization check result:', isAuthorizedData);
+        setIsAuthorized(Boolean(isAuthorizedData));
+      } catch (error) {
+        console.error('Error checking NGO authorization:', error);
+        setIsAuthorized(false);
+      } finally {
+        setIsLoadingAuthorization(false);
+      }
+    };
+
+    checkAuthorization();
+  }, [address, isConnected, isCorrectNetwork, publicClient]);
 
   // Read NGO List
   const {
@@ -44,33 +79,12 @@ export function useNGOAccessControl() {
   // Ensure ngoList is always an array
   const ngoList = Array.isArray(ngoListData) ? ngoListData : [];
 
-  // Check NGO Authorization
-  const {
-    data: isAuthorizedData,
-    isLoading: isLoadingAuthorization,
-    refetch: refetchAuthorization,
-    error: authorizationError
-  } = useContractRead({
-    address: CONTRACT_ADDRESSES.ngoAccessControl,
-    abi: NGOAccessControlABI,
-    functionName: 'isAuthorizedNGO',
-    args: [address || '0x0000000000000000000000000000000000000000'],
-    enabled: Boolean(address) && isConnected && isCorrectNetwork,
-    onError: (error) => {
-      console.error('Error checking NGO authorization:', error);
-    }
-  });
-
-  // Ensure isAuthorized is always a boolean
-  const isAuthorized = Boolean(isAuthorizedData);
-
   // Transaction Status
   useWaitForTransaction({
     hash: operationState.lastTransactionHash,
     enabled: Boolean(operationState.lastTransactionHash),
     onSuccess: () => {
       refetchNGOs();
-      refetchAuthorization();
       setOperationState(prev => ({
         ...prev,
         isPending: false,
@@ -148,14 +162,17 @@ export function useNGOAccessControl() {
   }, [address, isConnected, isCorrectNetwork, publicClient, checkOwnership]);
 
   return {
-    ngoList,
-    isLoadingNGOs,
     isAuthorized,
     isLoadingAuthorization,
+    isCorrectNetwork,
+    ngoList,
+    isLoadingNGOs,
+    refetchNGOs,
+    ngoListError,
+    operationState,
     checkAndRegisterNGO,
     isAdding: operationState.isPending && operationState.operationType === 'add',
     isRemoving: operationState.isPending && operationState.operationType === 'remove',
-    isCorrectNetwork,
-    error: operationState.error || ngoListError || authorizationError,
+    error: operationState.error || ngoListError,
   };
 }

@@ -7,6 +7,23 @@ import { CONTRACT_ADDRESSES, CONTRACT_ABIS } from '../config/contracts';
 import { sonicBlaze } from '../config/chains';
 import VoteSimulation from './VoteSimulation';
 import TokenBalanceDisplay from './TokenBalanceDisplay';
+import {
+  Box,
+  Button,
+  VStack,
+  HStack,
+  Text,
+  Heading,
+  Badge,
+  Card,
+  CardBody,
+  CardHeader,
+  CardFooter,
+  Divider,
+  useColorModeValue,
+  Icon,
+} from '@chakra-ui/react';
+import { FaFileAlt, FaUsers, FaCheck, FaTimes, FaEye } from 'react-icons/fa';
 
 const GrantDetail = () => {
   const { grantId } = useParams();
@@ -23,6 +40,9 @@ const GrantDetail = () => {
   const [isGrantCreator, setIsGrantCreator] = useState(false);
   const [hasApplied, setHasApplied] = useState(false);
   const [userApplication, setUserApplication] = useState(null);
+
+  const bgColor = useColorModeValue('white', 'gray.800');
+  const borderColor = useColorModeValue('gray.200', 'gray.700');
 
   // Helper functions for contract interactions
   const readGrantContract = async (functionName, args = []) => {
@@ -253,128 +273,98 @@ const GrantDetail = () => {
     }
   };
 
+  const handleViewApplications = () => {
+    navigate(`/grants/${grantId}/applications`);
+  };
+
   if (loading) {
-    return <div className="text-center p-6">Loading grant details...</div>;
+    return (
+      <Box p={4}>
+        <Text>Loading grant details...</Text>
+      </Box>
+    );
   }
 
   if (!grant) {
-    return <div className="text-center p-6">Grant not found</div>;
+    return (
+      <Box p={4}>
+        <Text>Grant not found</Text>
+      </Box>
+    );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-2xl font-bold mb-4 text-gray-800">{grant.title}</h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-700">Grant Details</h3>
-            <p className="text-gray-600 mb-2">Amount: {grant.amount} ETH</p>
-            <p className="text-gray-600 mb-2">Deadline: {grant.deadline}</p>
-            <p className="text-gray-600 mb-2">Status: {grant.isActive ? 'Active' : 'Closed'}</p>
-            <p className="text-gray-600 mb-2">Created by: 
-              <span className="text-xs ml-2 font-mono">
-                {grant.ngo.slice(0, 6)}...{grant.ngo.slice(-4)}
-              </span>
-            </p>
-            
-            {/* Add Token Balance Display */}
-            <div className="mt-4">
-              <p className="text-gray-600 mb-1">Your ACCESS balance:</p>
-              <TokenBalanceDisplay />
-            </div>
-          </div>
-          
-          <div>
-            <h3 className="text-lg font-semibold text-gray-700">Description</h3>
-            <p className="text-gray-600">{grant.description}</p>
-          </div>
-        </div>
-        
-        {!hasApplied && grant.isActive && grant.deadlineTimestamp > (Date.now() / 1000) && (
-          <div className="mt-4">
-            <button
-              onClick={() => navigate(`/grants/${grantId}/apply`)}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            >
-              Apply for this Grant
-            </button>
-          </div>
-        )}
-        
-        {hasApplied && userApplication && (
-          <div className="mt-6 p-4 border border-gray-200 rounded-lg">
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">Your Application</h3>
-            <p className="text-gray-600 mb-2">{userApplication.proposal}</p>
-            <p className="text-gray-600">
-              Status: {
-                userApplication.approved ? (
-                  <span className="text-green-600 font-semibold">Approved</span>
-                ) : userApplication.rejected ? (
-                  <span className="text-red-600 font-semibold">Rejected</span>
-                ) : (
-                  <span className="text-yellow-600 font-semibold">Pending</span>
-                )
-              }
-            </p>
-          </div>
-        )}
-        
-        {/* Add Community Voting */}
-        <div className="mt-6">
-          <VoteSimulation 
-            grantId={Number(grantId)} 
-            grantTitle={grant.title} 
-          />
-        </div>
-      </div>
-      
-      {isGrantCreator && (
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-xl font-bold mb-4 text-gray-800">Applications</h3>
-          
-          {applications.length === 0 ? (
-            <p className="text-gray-600">No applications yet.</p>
-          ) : (
-            <div className="space-y-4">
-              {applications.map((app, index) => (
-                <div key={index} className="p-4 border border-gray-200 rounded-lg">
-                  <p className="text-gray-700 font-semibold mb-1">
-                    Applicant: {app.applicant.slice(0, 6)}...{app.applicant.slice(-4)}
-                  </p>
-                  <p className="text-gray-600 mb-2">{app.proposal}</p>
-                  
-                  <div className="flex items-center mt-3">
-                    {!app.approved && !app.rejected ? (
-                      <>
-                        <button
-                          onClick={() => handleApprove(app.applicant)}
-                          disabled={approvalLoading}
-                          className="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-3 rounded mr-2 focus:outline-none focus:shadow-outline text-sm"
-                        >
-                          Approve
-                        </button>
-                        <button
-                          onClick={() => handleReject(app.applicant)}
-                          disabled={approvalLoading}
-                          className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded focus:outline-none focus:shadow-outline text-sm"
-                        >
-                          Reject
-                        </button>
-                      </>
-                    ) : app.approved ? (
-                      <span className="text-green-600 font-semibold">Approved</span>
-                    ) : (
-                      <span className="text-red-600 font-semibold">Rejected</span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+    <Box maxW="1200px" mx="auto" p={4}>
+      <Card bg={bgColor} borderColor={borderColor} borderWidth="1px">
+        <CardHeader>
+          <VStack align="stretch" spacing={4}>
+            <HStack justify="space-between">
+              <Heading size="lg">{grant.title}</Heading>
+              <Badge colorScheme={grant.isActive ? 'green' : 'red'}>
+                {grant.isActive ? 'Active' : 'Closed'}
+              </Badge>
+            </HStack>
+            <Text color="gray.500">Posted by: {grant.ngo}</Text>
+          </VStack>
+        </CardHeader>
+
+        <CardBody>
+          <VStack align="stretch" spacing={6}>
+            <Box>
+              <Heading size="sm" mb={2}>Description</Heading>
+              <Text>{grant.description}</Text>
+            </Box>
+
+            <HStack spacing={8}>
+              <Box>
+                <Text fontWeight="bold">Amount</Text>
+                <Text>{grant.amount} SONIC</Text>
+              </Box>
+              <Box>
+                <Text fontWeight="bold">Deadline</Text>
+                <Text>{grant.deadline}</Text>
+              </Box>
+            </HStack>
+
+            {isGrantCreator && (
+              <Box>
+                <Button
+                  leftIcon={<Icon as={FaEye} />}
+                  colorScheme="blue"
+                  onClick={handleViewApplications}
+                  size="lg"
+                  width="full"
+                >
+                  Review Applications
+                </Button>
+              </Box>
+            )}
+
+            {!isGrantCreator && !hasApplied && grant.isActive && (
+              <Button
+                colorScheme="blue"
+                onClick={() => navigate(`/grants/${grantId}/apply`)}
+                size="lg"
+                width="full"
+              >
+                Apply for Grant
+              </Button>
+            )}
+
+            {hasApplied && (
+              <Box>
+                <Text color="green.500">You have already applied for this grant</Text>
+                {userApplication && (
+                  <Text mt={2}>
+                    Status: {userApplication.approved ? 'Approved' : userApplication.rejected ? 'Rejected' : 'Pending'}
+                  </Text>
+                )}
+              </Box>
+            )}
+          </VStack>
+        </CardBody>
+      </Card>
+    </Box>
   );
 };
 

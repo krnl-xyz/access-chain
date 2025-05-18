@@ -241,7 +241,9 @@ const CreateSimpleGrantPage = () => {
         deadline: BigInt(deadlineTimestamp).toString(),
         chainId: sonicBlaze.id,
         account: address,
-        contractAddress: CONTRACT_ADDRESSES.accessGrant
+        contractAddress: CONTRACT_ADDRESSES.accessGrant,
+        isAuthorizedNGO,
+        connectedAddress: address
       });
       
       // Prepare transaction parameters with chain specified
@@ -257,6 +259,12 @@ const CreateSimpleGrantPage = () => {
         ],
         chain: sonicBlaze,
         account: address
+      });
+      
+      console.log('Grant creation transaction submitted:', {
+        hash,
+        account: address,
+        contractAddress: CONTRACT_ADDRESSES.accessGrant
       });
       
       toast.closeAll(); // Close any existing toasts

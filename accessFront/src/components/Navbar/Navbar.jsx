@@ -102,7 +102,7 @@ export default function Navbar() {
     },
     {
       label: 'Admin',
-      href: '/admin-dashboard',
+      href: '/admin',
     },
     {
       label: 'Dashboard',

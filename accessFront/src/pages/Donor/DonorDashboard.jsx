@@ -206,7 +206,7 @@ export default function DonorDashboard() {
           title: selectedGrant.title,
           amount: donationAmount,
           date: new Date().toISOString().split('T')[0],
-          status: 'active',
+      status: 'active',
           progress: 0,
           description: selectedGrant.description,
         };
@@ -385,42 +385,42 @@ export default function DonorDashboard() {
               </Box>
             ) : (
               donationHistory.map((donation) => (
-                <Box
-                  key={donation.id}
+              <Box
+                key={donation.id}
                   p={6}
                   transition="background-color 0.2s"
                   _hover={{ bg: useColorModeValue('gray.50', 'gray.700') }}
-                >
-                  <VStack align="stretch" spacing={3}>
+              >
+                <VStack align="stretch" spacing={3}>
                     <HStack justify="space-between" wrap="wrap">
-                      <VStack align="start" spacing={1}>
+                    <VStack align="start" spacing={1}>
                         <Heading size="sm">{donation.title}</Heading>
                         <Text color="gray.600" fontSize="sm">Donated: {donation.amount} SONIC</Text>
                         <Text color="gray.600" fontSize="sm">Date: {donation.date}</Text>
-                      </VStack>
-                      <Badge
-                        colorScheme={donation.status === 'active' ? 'green' : 'yellow'}
+                    </VStack>
+                    <Badge
+                      colorScheme={donation.status === 'active' ? 'green' : 'yellow'}
                         variant="solid"
                         px={2}
                         py={1}
                         borderRadius="full"
-                      >
+                    >
                         {donation.status === 'active' ? 'Active' : 'Completed'}
-                      </Badge>
-                    </HStack>
+                    </Badge>
+                  </HStack>
                     
-                    <Box>
-                      <HStack justify="space-between" mb={2}>
+                  <Box>
+                    <HStack justify="space-between" mb={2}>
                         <Text fontSize="sm" color="gray.600">Grant Progress</Text>
-                        <Text fontSize="sm" color="gray.600">{donation.progress}%</Text>
-                      </HStack>
-                      <Progress
-                        value={donation.progress}
-                        colorScheme="blue"
-                        size="sm"
-                        rounded="full"
-                      />
-                    </Box>
+                      <Text fontSize="sm" color="gray.600">{donation.progress}%</Text>
+                    </HStack>
+                    <Progress
+                      value={donation.progress}
+                      colorScheme="blue"
+                      size="sm"
+                      rounded="full"
+                    />
+                  </Box>
                     
                     <Button 
                       size="sm" 
@@ -431,9 +431,9 @@ export default function DonorDashboard() {
                       to={`/grants/${donation.grantId}`}
                     >
                       View Grant Details
-                    </Button>
-                  </VStack>
-                </Box>
+                  </Button>
+                </VStack>
+              </Box>
               ))
             )}
           </VStack>
@@ -480,7 +480,7 @@ export default function DonorDashboard() {
                   
                   <Text fontSize="sm" color="gray.600">
                     Deadline: {grant.deadlineDate}
-                  </Text>
+            </Text>
                   
                   <HStack spacing={4}>
                     <Button 
@@ -514,7 +514,7 @@ export default function DonorDashboard() {
               >
                 View All Grants
               </Button>
-            </Box>
+              </Box>
           </VStack>
         </Box>
       </VStack>

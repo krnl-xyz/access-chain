@@ -31,6 +31,8 @@ import {
   Spinner,
   Alert,
   AlertIcon,
+  AlertTitle,
+  AlertDescription,
   FormControl,
   FormLabel,
   FormHelperText,
@@ -68,7 +70,7 @@ import { useAccount, usePublicClient, useSwitchNetwork } from 'wagmi';
 import { formatEther } from 'viem';
 import { sonicBlaze } from '../../config/chains';
 import { CONTRACT_ADDRESSES } from '../../config/contracts';
-import { useNGOAccessControl } from '../../hooks/useNGOAccessControl';
+import useAdminAccessControl from '../../hooks/useAdminAccessControl';
 import { useGrantManagement } from '../../hooks/useGrantManagement';
 import NGOManagementPanel from '../../components/admin/NGOManagementPanel';
 
@@ -88,13 +90,14 @@ const AdminDashboard = () => {
   
   // Use our hooks
   const { 
-    isOwner,
-    ngoList, 
+    isOwner, 
+    isAdmin, 
+    isLoading: isLoadingAuthorization, 
     isCorrectNetwork,
+    ngoList,
     addNGO,
-    removeNGO,
-    isLoadingAuthorization,
-  } = useNGOAccessControl();
+    fetchNGOList
+  } = useAdminAccessControl();
 
   const { 
     grants,
@@ -147,20 +150,20 @@ const AdminDashboard = () => {
       });
     }
   }, [isConnected, toast]);
-  
+
   // Check if user is admin
   useEffect(() => {
-    if (!isLoadingAuthorization && !isOwner && isConnected) {
+    if (!isLoadingAuthorization && !isOwner && !isAdmin && isConnected) {
       toast({
         title: 'Access Denied',
-        description: 'You must be the contract owner to access the admin dashboard',
+        description: 'You must be the contract owner or an authorized admin to access the admin dashboard',
         status: 'error',
         duration: 5000,
         isClosable: true,
       });
       navigate('/');
     }
-  }, [isLoadingAuthorization, isOwner, isConnected, toast, navigate]);
+  }, [isLoadingAuthorization, isOwner, isAdmin, isConnected, toast, navigate]);
 
   // Validate Ethereum address
   const validateAddress = (address) => {
@@ -179,11 +182,12 @@ const AdminDashboard = () => {
       });
       return;
     }
-    
+
     setIsAddingNGO(true);
-    
+
     try {
-      await addNGO(newNGOAddress);
+      const receipt = await addNGO(newNGOAddress);
+      
       toast({
         title: 'NGO Added Successfully',
         description: `Address ${newNGOAddress} has been authorized as an NGO`,
@@ -191,8 +195,18 @@ const AdminDashboard = () => {
         duration: 5000,
         isClosable: true,
       });
+
+      // Close the modal and reset the form
       setNewNGOAddress('');
       onAddNGOClose();
+
+      // Navigate to the NGO dashboard
+      navigate(`/ngo/${newNGOAddress}`, { 
+        state: { 
+          ngoAddress: newNGOAddress,
+          isNewNGO: true 
+        }
+      });
     } catch (error) {
       console.error('Error adding NGO:', error);
       toast({
@@ -206,11 +220,11 @@ const AdminDashboard = () => {
       setIsAddingNGO(false);
     }
   };
-  
+
   // Handle removing an NGO
   const handleRemoveNGO = async (ngoAddress) => {
     try {
-      await removeNGO(ngoAddress);
+      // TODO: Implement removeNGO function
       toast({
         title: 'NGO Removed',
         description: `Address ${ngoAddress} is no longer authorized`,
@@ -242,8 +256,8 @@ const AdminDashboard = () => {
     );
   }
   
-  // Access denied if not owner
-  if (!isOwner && !isLoadingAuthorization) {
+  // Access denied if not owner or admin
+  if (!isOwner && !isAdmin && !isLoadingAuthorization) {
     return (
       <Container maxW="7xl" py={8}>
         <Alert
@@ -254,14 +268,12 @@ const AdminDashboard = () => {
           justifyContent="center"
           textAlign="center"
           height="200px"
-          borderRadius="lg"
         >
           <AlertIcon boxSize="40px" mr={0} />
-          <Heading mt={4} mb={1} size="md">Access Denied</Heading>
-          <Text mb={4}>Only the contract owner can access the admin dashboard</Text>
-          <Button colorScheme="blue" onClick={() => navigate('/')}>
-            Return to Home
-          </Button>
+          <AlertTitle mt={4} mb={1} size="md">Access Denied</AlertTitle>
+          <AlertDescription maxWidth="sm">
+            You must be the contract owner or an authorized admin to access the admin dashboard.
+          </AlertDescription>
         </Alert>
       </Container>
     );
@@ -278,13 +290,13 @@ const AdminDashboard = () => {
               Manage NGOs, grants, and platform settings
             </Text>
           </Box>
-          <Button
-            colorScheme="blue"
+                <Button
+                  colorScheme="blue"
             leftIcon={<AddIcon />}
             onClick={onAddNGOOpen}
-          >
+                >
             Add New NGO
-          </Button>
+                </Button>
         </Flex>
 
         {/* Network Status */}
@@ -298,7 +310,7 @@ const AdminDashboard = () => {
           <HStack spacing={4} width="100%" justify="space-between">
             <Text>
               Connected to: {networkName}
-            </Text>
+          </Text>
             {!isCorrectNetwork && (
               <Button
                 size="sm"
@@ -308,8 +320,8 @@ const AdminDashboard = () => {
                 Switch to Sonic Blaze
               </Button>
             )}
-          </HStack>
-        </Alert>
+            </HStack>
+            </Alert>
 
         {/* Stats Grid */}
         <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6} mb={8}>
@@ -443,15 +455,15 @@ const AdminDashboard = () => {
 
         {/* Main Content Tabs */}
         <Tabs variant="enclosed" colorScheme="blue">
-          <TabList>
-            <Tab>NGO Management</Tab>
+            <TabList>
+              <Tab>NGO Management</Tab>
             <Tab>Grants Overview</Tab>
             <Tab>System Settings</Tab>
-          </TabList>
+            </TabList>
 
-          <TabPanels>
+            <TabPanels>
             {/* NGO Management Tab */}
-            <TabPanel>
+              <TabPanel>
               <Card bg={cardBg} boxShadow="md" borderRadius="lg" overflow="hidden">
                 <Box bg={headerBg} p={4}>
                   <Heading size="md">Authorized NGOs</Heading>
@@ -463,22 +475,22 @@ const AdminDashboard = () => {
                       <Text mt={4}>Loading NGOs...</Text>
                     </Box>
                   ) : ngoList?.length === 0 ? (
-                    <Alert status="info">
-                      <AlertIcon />
+                  <Alert status="info">
+                    <AlertIcon />
                       No NGOs have been authorized yet. Use the "Add New NGO" button to add one.
-                    </Alert>
-                  ) : (
+                  </Alert>
+                ) : (
                     <Box overflowX="auto">
-                      <Table variant="simple">
+                  <Table variant="simple">
                         <Thead bg={badgeBg}>
                           <Tr>
                             <Th>Address</Th>
                             <Th isNumeric>Grants Created</Th>
                             <Th>Status</Th>
-                            <Th>Actions</Th>
-                          </Tr>
-                        </Thead>
-                        <Tbody>
+                        <Th>Actions</Th>
+                      </Tr>
+                    </Thead>
+                    <Tbody>
                           {ngoList?.map((ngo, index) => {
                             // Count grants created by this NGO
                             const ngoGrants = grants.filter(grant => 
@@ -489,16 +501,16 @@ const AdminDashboard = () => {
                               <Tr key={index}>
                                 <Td fontFamily="mono" fontSize="sm">
                                   {ngo.substring(0, 8)}...{ngo.substring(ngo.length - 8)}
-                                </Td>
+                          </Td>
                                 <Td isNumeric>{ngoGrants.length}</Td>
-                                <Td>
+                          <Td>
                                   <Badge colorScheme="green">Active</Badge>
-                                </Td>
-                                <Td>
-                                  <HStack spacing={2}>
+                          </Td>
+                          <Td>
+                            <HStack spacing={2}>
                                     <Tooltip label="View NGO Grants">
                                       <IconButton
-                                        size="sm"
+                                size="sm"
                                         colorScheme="blue"
                                         icon={<ViewIcon />}
                                         aria-label="View NGO Grants"
@@ -507,8 +519,8 @@ const AdminDashboard = () => {
                                     </Tooltip>
                                     <Tooltip label="Remove NGO Authorization">
                                       <IconButton
-                                        size="sm"
-                                        colorScheme="red"
+                                size="sm"
+                                colorScheme="red"
                                         icon={<CloseIcon />}
                                         aria-label="Remove NGO"
                                         onClick={() => handleRemoveNGO(ngo)}
@@ -604,12 +616,12 @@ const AdminDashboard = () => {
                                       rel="noopener noreferrer"
                                     />
                                   </Tooltip>
-                                </HStack>
-                              </Td>
-                            </Tr>
-                          ))}
-                        </Tbody>
-                      </Table>
+                            </HStack>
+                          </Td>
+                        </Tr>
+                      ))}
+                    </Tbody>
+                  </Table>
                       
                       {grants.length > 10 && (
                         <Button 
@@ -627,10 +639,10 @@ const AdminDashboard = () => {
                   )}
                 </CardBody>
               </Card>
-            </TabPanel>
+              </TabPanel>
 
             {/* System Settings Tab */}
-            <TabPanel>
+              <TabPanel>
               <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
                 <Card bg={cardBg} boxShadow="md" borderRadius="lg" overflow="hidden">
                   <Box bg={headerBg} p={4}>
@@ -753,18 +765,18 @@ const AdminDashboard = () => {
                       </FormControl>
                       
                       <Alert status="info" borderRadius="md">
-                        <AlertIcon />
+                  <AlertIcon />
                         <Text fontSize="sm">
                           Advanced system settings are only available through direct contract interaction.
                         </Text>
-                      </Alert>
+                </Alert>
                     </VStack>
                   </CardBody>
                 </Card>
               </SimpleGrid>
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
       </Container>
       
       {/* Add NGO Modal */}
@@ -807,7 +819,7 @@ const AdminDashboard = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </Box>
+        </Box>
   );
 };
 
