@@ -26,8 +26,12 @@ const useKrnl = () => {
         kernelId: KERNELS.DISABILITY_VERIFICATION,
         method: 'verifyDisability',
         params: {
-          userId: address,
-          ...userData
+          wallet_address: address,
+          disability_type: userData.disabilityType,
+          documentation: {
+            type: userData.documentationType,
+            has_documentation: userData.hasDocumentation
+          }
         }
       });
       
