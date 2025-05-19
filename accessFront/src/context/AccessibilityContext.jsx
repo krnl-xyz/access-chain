@@ -9,6 +9,12 @@ const defaultSettings = {
   disabilityType: null,
   disabilityVerified: false,
   assistiveTechnologies: [],
+  kernelVerification: {
+    kernelId: null,
+    cid: null,
+    type: null,
+    verified: false
+  },
 };
 
 // Create the context
@@ -48,11 +54,17 @@ export const AccessibilityProvider = ({ children }) => {
   };
 
   // Register a disability type
-  const registerDisability = (type, verified = false) => {
+  const registerDisability = (type, verified, kernelData = null) => {
     setSettings(prev => ({
       ...prev,
       disabilityType: type,
-      disabilityVerified: verified
+      disabilityVerified: verified,
+      kernelVerification: kernelData ? {
+        kernelId: kernelData.kernelId,
+        cid: kernelData.cid,
+        type: kernelData.type,
+        verified: kernelData.verified
+      } : prev.kernelVerification
     }));
   };
 
