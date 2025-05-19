@@ -1,82 +1,134 @@
-# Team-AccessChain
+# AccessChain - KRNL Integration
 
-## Overview
-AccessChain is a blockchain-based platform that connects people with disabilities to funding and resources through transparent grant management. It eliminates intermediaries, ensuring direct support reaches beneficiaries while providing NGOs with efficient tools to create and manage disability support grants.
+AccessChain is a decentralized platform for disability verification and resource distribution, powered by KRNL kernel technology.
 
-## Features
-✅ On-chain disability verification and registration
-✅ NGO verification and grant management system
-✅ Direct funding between donors and beneficiaries
-✅ Community voting on grant applications
-✅ ACCESS token integration for governance
-✅ Accessibility-first design for all users
+## KRNL Integration Overview
+
+### Current Implementation
+
+1. **Disability Verification**
+   - KRNL kernel-based verification system
+   - Secure documentation handling
+   - Real-time verification status updates
+   - Kernel ID and CID tracking
+
+2. **Resource Matching**
+   - AI-powered grant matching
+   - Personalized resource recommendations
+   - Multi-factor matching algorithm
+
+3. **Impact Analysis**
+   - Grant effectiveness tracking
+   - User outcome analysis
+   - Resource utilization metrics
+
+### Technical Implementation
+
+```javascript
+// KRNL Kernel Integration
+const krnlClient = new KrnlClient({
+  apiKey: process.env.REACT_APP_KRNL_API_KEY,
+  environment: process.env.NODE_ENV
+});
+
+// Disability Verification
+const verifyDisability = async (userData) => {
+  return await krnlClient.callKernel({
+    kernelId: KERNELS.DISABILITY_VERIFICATION,
+    method: 'verifyDisability',
+    params: {
+      wallet_address: userData.address,
+      disability_type: userData.type,
+      documentation: userData.docs
+    }
+  });
+};
+```
+
+### Future KRNL Implementations
+
+1. **Advanced Verification**
+   - Batch verification for organizations
+   - Multi-level verification process
+   - Automated documentation verification
+   - Integration with medical providers
+
+2. **Smart Contract Integration**
+   - Grant distribution automation
+   - Token-based rewards
+   - Governance mechanisms
+   - Verification status updates
+
+3. **Enhanced Resource Matching**
+   - Machine learning-based matching
+   - Real-time availability updates
+   - Cross-platform resource sharing
+   - Success rate optimization
 
 ## Project Structure
-- `contracts/`: Smart contracts for disability verification, grant management, and token functionality
-- `accessFront/`: React-based frontend application with Chakra UI components
-- `scripts/`: Deployment and configuration scripts
-- `test/`: Contract test files
-- `assets/`: Design assets and images
-- `docs/`: Additional documentation
 
-## Tech Stack
-- Solidity + Hardhat
-- React + Chakra UI
-- Wagmi v2 / Ethers.js
-- MetaMask integration
-- Sonic Blaze Testnet
-
-## How to Run Locally
-1. Clone the repo
-```shell
-git clone https://github.com/Blockbridge-Network/Team-AccessChain-Core.git
-cd Team-AccessChain-Core
+```
+accesschain-core/
+├── accessFront/
+│   ├── src/
+│   │   ├── config/
+│   │   │   └── krnl.js           # KRNL client configuration
+│   │   ├── hooks/
+│   │   │   └── useKrnl.js        # KRNL integration hooks
+│   │   └── context/
+│   │       └── AccessibilityContext.jsx  # KRNL state management
+└── contracts/
+    └── KrnlEnabled.sol           # KRNL smart contract integration
 ```
 
-2. Install dependencies
-```shell
-npm install
-cd accessFront
+## Getting Started
+
+1. Install dependencies:
+```bash
 npm install
 ```
 
-3. Configure MetaMask for Sonic Blaze Testnet
-   - Network Name: Sonic Blaze Testnet
-   - RPC URL: https://rpc.blaze.soniclabs.com
-   - Chain ID: 57054
-   - Currency Symbol: SONIC
+2. Set up environment variables:
+```env
+REACT_APP_KRNL_API_KEY=your_api_key
+REACT_APP_KRNL_ENVIRONMENT=development
+```
 
-4. Start the development server
-```shell
-cd accessFront
+3. Start the development server:
+```bash
 npm run dev
 ```
 
-## Contracts
-| Contract | Address | Network |
-|----------|---------|---------|
-| NGOAccessControl | 0x16788aD7d27A8e244BEbF1cdc3906b43f7f66f80 | Sonic Testnet |
-| RequestRegistry | 0xC880064656D06317A55EC3cD9036D8CE8E217497 | Sonic Testnet |
-| AccessGrant | 0x1eA07a7e5Fc838146E9de9F801d50f3F896a6587 | Sonic Testnet |
-| AccessToken | 0xd4F4B93aD2Fb9a543a74a9C5aad334cAd47B5a4B | Sonic Testnet |
-| AccessNFT | 0x9C270EA210E741B550bF822625694D0f64c71492 | Sonic Testnet |
-| AccessDAO | 0x0081FB567ae0851f8fa47E39c6e3882e9f91e10F | Sonic Testnet |
+## KRNL Kernel Features
 
-## 📸 Screenshots
+### Current Features
+- Disability verification
+- Resource matching
+- Impact analysis
+- Status tracking
 
-![Admin Dashboard](screenshots/admin-dashboard.png)
-![Grant Management](screenshots/grant-management.png)
-![User Interface](screenshots/user-interface.png)
-![Grant Details](screenshots/grant-details.png)
-![User Dashboard](screenshots/user-dashboard.png)
+### Planned Features
+- Batch verification
+- Smart contract integration
+- Advanced matching algorithms
+- Cross-platform verification
 
-## 🎥 Demo Video
-[Watch our demo video](https://vimeo.com/1084558401/d69f80400a) to see AccessChain in action.
+## Contributing
 
-## Team
-- Richmond Andoh (Full-Stack Developer)
-- Agyemang Nana Akua (Frontend Developer)
-- Adwoa Favour (UI/UX Designer)
+We welcome contributions to enhance the KRNL integration. Please follow these steps:
 
-## 📄 License
-MIT
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Contact
+
+For KRNL integration questions:
+- Email: support@accesschain.org
+- GitHub: [AccessChain Issues](https://github.com/krnl-xyz/access-chain/issues)
