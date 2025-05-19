@@ -14,6 +14,11 @@ AccessChain is a blockchain-based platform that connects people with disabilitie
 ## KRNL Integration
 AccessChain leverages KRNL kernel technology for enhanced disability verification and resource distribution.
 
+### KRNL Screenshots
+![KRNL Verification](screenshots/krnl-verification.png)
+![KRNL Resource Matching](screenshots/krnl-resource-matching.png)
+![KRNL Impact Analysis](screenshots/krnl-impact-analysis.png)
+
 ### Current KRNL Implementation
 1. **Disability Verification**
    - KRNL kernel-based verification system
