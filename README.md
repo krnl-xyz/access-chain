@@ -11,9 +11,51 @@ AccessChain is a blockchain-based platform that connects people with disabilitie
 ✅ ACCESS token integration for governance
 ✅ Accessibility-first design for all users
 
+## KRNL Integration
+AccessChain leverages KRNL kernel technology for enhanced disability verification and resource distribution.
+
+### Current KRNL Implementation
+1. **Disability Verification**
+   - KRNL kernel-based verification system
+   - Secure documentation handling
+   - Real-time verification status updates
+   - Kernel ID and CID tracking
+
+2. **Resource Matching**
+   - AI-powered grant matching
+   - Personalized resource recommendations
+   - Multi-factor matching algorithm
+
+3. **Impact Analysis**
+   - Grant effectiveness tracking
+   - User outcome analysis
+   - Resource utilization metrics
+
+### Future KRNL Implementations
+1. **Advanced Verification**
+   - Batch verification for organizations
+   - Multi-level verification process
+   - Automated documentation verification
+   - Integration with medical providers
+
+2. **Smart Contract Integration**
+   - Grant distribution automation
+   - Token-based rewards
+   - Governance mechanisms
+   - Verification status updates
+
+3. **Enhanced Resource Matching**
+   - Machine learning-based matching
+   - Real-time availability updates
+   - Cross-platform resource sharing
+   - Success rate optimization
+
 ## Project Structure
 - `contracts/`: Smart contracts for disability verification, grant management, and token functionality
 - `accessFront/`: React-based frontend application with Chakra UI components
+  - `src/config/krnl.js`: KRNL client configuration
+  - `src/hooks/useKrnl.js`: KRNL integration hooks
+  - `src/context/AccessibilityContext.jsx`: KRNL state management
 - `scripts/`: Deployment and configuration scripts
 - `test/`: Contract test files
 - `assets/`: Design assets and images
@@ -25,6 +67,7 @@ AccessChain is a blockchain-based platform that connects people with disabilitie
 - Wagmi v2 / Ethers.js
 - MetaMask integration
 - Sonic Blaze Testnet
+- KRNL Kernel Technology
 
 ## How to Run Locally
 1. Clone the repo
@@ -46,7 +89,13 @@ npm install
    - Chain ID: 57054
    - Currency Symbol: SONIC
 
-4. Start the development server
+4. Configure KRNL Environment Variables
+```env
+REACT_APP_KRNL_API_KEY=your_api_key
+REACT_APP_KRNL_ENVIRONMENT=development
+```
+
+5. Start the development server
 ```shell
 cd accessFront
 npm run dev
