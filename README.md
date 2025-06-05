@@ -134,3 +134,53 @@ npm run dev
 
 ## 📄 License
 MIT
+
+## DAO Structure
+AccessChain operates as a decentralized autonomous organization (DAO) to ensure transparent and community-driven governance:
+
+### Governance Model
+- **Token-Based Voting**: ACCESS token holders can vote on key platform decisions
+- **Proposal System**: Community members can submit and vote on proposals
+- **Treasury Management**: Transparent fund allocation for platform development
+- **Stakeholder Representation**: Equal voice for beneficiaries, NGOs, and donors
+
+### DAO Features
+- Proposal creation and voting
+- Fund allocation tracking
+- Community-driven feature development
+- Transparent decision-making process
+
+## Live Demo
+Experience AccessChain's features firsthand:
+- [AccessChain Live Demo](https://accesschain.vercel.app)
+- [Test User Credentials](https://github.com/Blockbridge-Network/Team-AccessChain-Core/wiki/Test-Accounts)
+
+## Business Model
+AccessChain's sustainable business model focuses on long-term impact while ensuring platform sustainability:
+
+### Revenue Streams
+1. **Platform Fees**
+   - Small transaction fee (0.5%) on successful grant distributions
+   - Premium features for NGOs and organizations
+   - API access for third-party integrations
+
+2. **Token Economics**
+   - ACCESS token utility in governance
+   - Staking rewards for long-term holders
+   - Token-based premium features
+
+3. **Partnership Revenue**
+   - Integration fees from partner organizations
+   - Custom solution development
+   - Enterprise licensing
+
+### Sustainability
+- 70% of platform fees allocated to development
+- 20% to community rewards and incentives
+- 10% to operational costs
+
+### Impact Metrics
+- Number of beneficiaries supported
+- Success rate of grant applications
+- Community engagement levels
+- Platform adoption metrics
