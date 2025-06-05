@@ -14,9 +14,5 @@
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ],
-  "env": {
-    "REACT_APP_KRNL_API_KEY": "@krnl_api_key",
-    "REACT_APP_KRNL_ENVIRONMENT": "production"
-  }
+  ]
 } 
