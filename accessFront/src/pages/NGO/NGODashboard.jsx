@@ -297,8 +297,8 @@ const NGODashboard = () => {
           >
             Create New Grant
           </Button>
-        </Flex>
-
+                </Flex>
+          
         {/* Stats Cards */}
         <SimpleGrid columns={{ base: 1, md: 4 }} spacing={5}>
           <Card bg={cardBg} boxShadow="md" borderRadius="lg">
@@ -357,29 +357,29 @@ const NGODashboard = () => {
         <Card bg={cardBg} boxShadow="md" borderRadius="lg" overflow="hidden">
           <CardBody>
             <Heading size="md" mb={4}>Your Grants</Heading>
-            {isLoadingGrants ? (
+          {isLoadingGrants ? (
               <Box textAlign="center" py={10}>
                 <Spinner size="xl" />
                 <Text mt={4}>Loading grants...</Text>
-              </Box>
+        </Box>
             ) : ngoGrants.length === 0 ? (
-              <Alert status="info">
-                <AlertIcon />
+            <Alert status="info">
+              <AlertIcon />
                 No grants have been created yet. Click the button below to create your first grant.
-              </Alert>
-            ) : (
-              <Box overflowX="auto">
-                <Table variant="simple">
-                  <Thead>
-                    <Tr>
+            </Alert>
+          ) : (
+            <Box overflowX="auto">
+              <Table variant="simple">
+                <Thead>
+                  <Tr>
                       <Th>Grant Name</Th>
                       <Th isNumeric>Amount</Th>
                       <Th>Deadline</Th>
-                      <Th>Status</Th>
-                      <Th>Actions</Th>
-                    </Tr>
-                  </Thead>
-                  <Tbody>
+                    <Th>Status</Th>
+                    <Th>Actions</Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
                     {ngoGrants.map((grant) => (
                       <Tr key={grant.id}>
                         <Td fontWeight="medium">{grant.title}</Td>
@@ -398,25 +398,25 @@ const NGODashboard = () => {
                           >
                             View Details
                           </Button>
-                        </Td>
-                      </Tr>
-                    ))}
-                  </Tbody>
-                </Table>
-              </Box>
-            )}
+                      </Td>
+                    </Tr>
+                  ))}
+                </Tbody>
+              </Table>
+            </Box>
+          )}
           </CardBody>
         </Card>
 
         {/* Create Grant Button */}
         <Box mt={8} textAlign="center">
-          <Button
-            colorScheme="blue"
+                        <Button
+                          colorScheme="blue"
             size="lg"
             onClick={() => navigate('/grants/create')}
-          >
+                        >
             Create New Grant
-          </Button>
+                        </Button>
         </Box>
       </VStack>
     </Container>

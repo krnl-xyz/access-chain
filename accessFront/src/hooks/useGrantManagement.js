@@ -414,16 +414,16 @@ export function useGrantManagement() {
 
     // Format the grant data
     const formattedGrant = {
-      id: Number(grant.id),
-      title: grant.title,
-      description: grant.description,
-      amount: grant.amount.toString(),
-      deadline: Number(grant.deadline),
+    id: Number(grant.id),
+    title: grant.title,
+    description: grant.description,
+    amount: grant.amount.toString(),
+    deadline: Number(grant.deadline),
       ngo: grant.ngo.toLowerCase(), // Normalize NGO address to lowercase
-      isActive: grant.isActive,
-      deadlineDate: new Date(Number(grant.deadline) * 1000).toLocaleString(),
-      isExpired: Number(grant.deadline) < Math.floor(Date.now() / 1000),
-      isOwnedByCurrentUser: grant.ngo.toLowerCase() === (address || '').toLowerCase()
+    isActive: grant.isActive,
+    deadlineDate: new Date(Number(grant.deadline) * 1000).toLocaleString(),
+    isExpired: Number(grant.deadline) < Math.floor(Date.now() / 1000),
+    isOwnedByCurrentUser: grant.ngo.toLowerCase() === (address || '').toLowerCase()
     };
 
     console.log('Formatted grant:', {
