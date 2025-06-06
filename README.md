@@ -151,9 +151,11 @@ AccessChain operates as a decentralized autonomous organization (DAO) to ensure 
 - Transparent decision-making process
 
 ## Live Demo
+
 Experience AccessChain's features firsthand:
-- [AccessChain Live Demo](https://accesschain.vercel.app)
-- [Test User Credentials](https://github.com/Blockbridge-Network/Team-AccessChain-Core/wiki/Test-Accounts)
+
+* [AccessChain Live Demo](https://accesschain-core.vercel.app/)
+* Test User Credentials
 
 ## Business Model
 AccessChain's sustainable business model focuses on long-term impact while ensuring platform sustainability:
